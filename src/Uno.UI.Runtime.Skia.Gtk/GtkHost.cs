@@ -121,18 +121,6 @@ namespace Uno.UI.Runtime.Skia
 			Windows.UI.Core.CoreDispatcher.DispatchOverride = Dispatch;
 			Windows.UI.Core.CoreDispatcher.HasThreadAccessOverride = () => _isDispatcherThread;
 
-			_window.Realized += (s, e) =>
-			{
-				WUX.Window.Current.OnNativeSizeChanged(new Windows.Foundation.Size(_window.AllocatedWidth, _window.AllocatedHeight));
-			};
-
-			_window.SizeAllocated += (s, e) =>
-			{
-				WUX.Window.Current.OnNativeSizeChanged(new Windows.Foundation.Size(e.Allocation.Width, e.Allocation.Height));
-			};
-
-			_window.WindowStateEvent += OnWindowStateChanged;
-
 			var overlay = new Overlay();
 
 			_eventBox = new EventBox();
@@ -142,6 +130,16 @@ namespace Uno.UI.Runtime.Skia
 			overlay.AddOverlay(_fix);
 			_eventBox.Add(overlay);
 			_window.Add(_eventBox);
+
+			_area.Realized += (s, e) =>
+			{
+				WUX.Window.Current.OnNativeSizeChanged(new Windows.Foundation.Size(_area.AllocatedWidth, _area.AllocatedHeight));
+			};
+
+			_area.SizeAllocated += (s, e) =>
+			{
+				WUX.Window.Current.OnNativeSizeChanged(new Windows.Foundation.Size(e.Allocation.Width, e.Allocation.Height));
+			};
 
 			/* avoids double invokes at window level */
 			_area.AddEvents((int)GtkCoreWindowExtension.RequestedEvents);
