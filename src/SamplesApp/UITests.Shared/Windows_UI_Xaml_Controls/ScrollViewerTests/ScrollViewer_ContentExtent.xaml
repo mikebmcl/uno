@@ -1,0 +1,128 @@
+﻿<Page
+    x:Class="UITests.Windows_UI_Xaml_Controls.ScrollViewerTests.ScrollViewer_ContentExtent"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d">
+
+	<Grid BorderBrush="Red" BorderThickness="2">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+		<ScrollViewer VerticalScrollBarVisibility="Visible"
+					  Background="Pink"
+					  Margin="8"
+					  Grid.Row="0">
+			<StackPanel Orientation="Vertical"
+						Margin="16"
+						Background="Turquoise">
+				<Rectangle Height="2" Fill="DarkGoldenrod" HorizontalAlignment="Stretch" Margin="2" />
+				<TextBlock Text="StackPanel Margin"
+						Margin="8" />
+				<TextBlock Text="Start!"
+						Margin="8" />
+				<TextBlock Text="Hello 1!"
+						Margin="8" />
+				<TextBlock Text="Hello 2!"
+						Margin="8" />
+				<TextBlock Text="Hello 3!"
+						Margin="8" />
+				<TextBlock Text="Hello 4!"
+						Margin="8" />
+				<TextBlock Text="Hello 5!"
+						Margin="8" />
+				<TextBlock Text="Hello 6!"
+						Margin="8" />
+				<TextBlock Text="Hello 7!"
+						Margin="8" />
+				<TextBlock Text="Hello 8!"
+						Margin="8" />
+				<TextBlock Text="Hello 9!"
+						Margin="8" />
+				<TextBlock Text="Hello 10!"
+						Margin="8" />
+				<TextBlock Text="End!"
+						Margin="8" />
+				<Rectangle Height="2" Fill="DarkGoldenrod" HorizontalAlignment="Stretch" Margin="2" />
+			</StackPanel>
+		</ScrollViewer>
+		<ScrollViewer VerticalScrollBarVisibility="Visible"
+					  Background="Pink"
+					  Margin="8"
+					  Padding="16"
+					  Grid.Row="1">
+			<StackPanel Orientation="Vertical"
+						Background="Turquoise">
+				<Rectangle Height="2" Fill="DarkGoldenrod" HorizontalAlignment="Stretch" Margin="2" />
+				<TextBlock Text="ScrollViewer Padding"
+						Margin="8" />
+				<TextBlock Text="Start!"
+						Margin="8" />
+				<TextBlock Text="Hello 1!"
+						Margin="8" />
+				<TextBlock Text="Hello 2!"
+						Margin="8" />
+				<TextBlock Text="Hello 3!"
+						Margin="8" />
+				<TextBlock Text="Hello 4!"
+						Margin="8" />
+				<TextBlock Text="Hello 5!"
+						Margin="8" />
+				<TextBlock Text="Hello 6!"
+						Margin="8" />
+				<TextBlock Text="Hello 7!"
+						Margin="8" />
+				<TextBlock Text="Hello 8!"
+						Margin="8" />
+				<TextBlock Text="Hello 9!"
+						Margin="8" />
+				<TextBlock Text="Hello 10!"
+						Margin="8" />
+				<TextBlock Text="End!"
+						Margin="8" />
+				<Rectangle Height="2" Fill="DarkGoldenrod" HorizontalAlignment="Stretch" Margin="2" />
+			</StackPanel>
+		</ScrollViewer>
+		<ScrollViewer VerticalScrollBarVisibility="Visible"
+					  Background="Pink"
+					  Margin="8"
+					  Padding="16"
+					  Grid.Row="2">
+			<StackPanel Orientation="Vertical"
+						Margin="16"
+						Background="Turquoise">
+				<Rectangle Height="2" Fill="DarkGoldenrod" HorizontalAlignment="Stretch" Margin="2" />
+				<TextBlock Text="StackPanel Margin and ScrollViewer Padding"
+						Margin="8" />
+				<TextBlock Text="Start!"
+						Margin="8" />
+				<TextBlock Text="Hello 1!"
+						Margin="8" />
+				<TextBlock Text="Hello 2!"
+						Margin="8" />
+				<TextBlock Text="Hello 3!"
+						Margin="8" />
+				<TextBlock Text="Hello 4!"
+						Margin="8" />
+				<TextBlock Text="Hello 5!"
+						Margin="8" />
+				<TextBlock Text="Hello 6!"
+						Margin="8" />
+				<TextBlock Text="Hello 7!"
+						Margin="8" />
+				<TextBlock Text="Hello 8!"
+						Margin="8" />
+				<TextBlock Text="Hello 9!"
+						Margin="8" />
+				<TextBlock Text="Hello 10!"
+						Margin="8" />
+				<TextBlock Text="End!"
+						Margin="8" />
+				<Rectangle Height="2" Fill="DarkGoldenrod" HorizontalAlignment="Stretch" Margin="2" />
+			</StackPanel>
+		</ScrollViewer>
+	</Grid>
+</Page>
