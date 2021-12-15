@@ -116,8 +116,8 @@ namespace Windows.UI.Xaml.Controls
 					var canUseActualHeightAsExtent =
 						ActualHeight > 0 &&
 						fe.VerticalAlignment == VerticalAlignment.Stretch;
-
-					return canUseActualHeightAsExtent ? fe.ActualHeight : fe.DesiredSize.Height;
+					var extentHeightAdjustment = fe.Margin.Top + fe.Margin.Bottom;
+					return canUseActualHeightAsExtent ? fe.ActualHeight + extentHeightAdjustment : fe.DesiredSize.Height + extentHeightAdjustment;
 				}
 
 				return 0d;
@@ -139,17 +139,17 @@ namespace Windows.UI.Xaml.Controls
 					var canUseActualWidthAsExtent =
 						ActualWidth > 0 &&
 						fe.HorizontalAlignment == HorizontalAlignment.Stretch;
-
-					return canUseActualWidthAsExtent ? fe.ActualWidth : fe.DesiredSize.Width;
+					var extentWidthAdjustment = fe.Margin.Left + fe.Margin.Right;
+					return canUseActualWidthAsExtent ? fe.ActualWidth + extentWidthAdjustment : fe.DesiredSize.Width + extentWidthAdjustment;
 				}
 
 				return 0d;
 			}
 		}
 
-		public double ViewportHeight => DesiredSize.Height;
+		public double ViewportHeight => DesiredSize.Height - (Margin.Top + Margin.Bottom);
 
-		public double ViewportWidth => DesiredSize.Width;
+		public double ViewportWidth => DesiredSize.Width - (Margin.Left + Margin.Right);
 
 #if UNO_HAS_MANAGED_SCROLL_PRESENTER || __WASM__
 		protected override Size MeasureOverride(Size size)
