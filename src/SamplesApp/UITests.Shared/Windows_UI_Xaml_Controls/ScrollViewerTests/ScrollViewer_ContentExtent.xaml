@@ -24,7 +24,7 @@
 					  BorderThickness="{x:Bind ScrollViewerBorderThickness}"
 					  x:Name="NeitherScrollViewer"
 					  BorderBrush="Navy"
-					  BorderThickness="2"
+					  BorderThickness="{x:Bind ScrollViewerBorderThickness}"
 					  Background="Pink"
 					  Margin="8"
 					  Grid.Row="0">
