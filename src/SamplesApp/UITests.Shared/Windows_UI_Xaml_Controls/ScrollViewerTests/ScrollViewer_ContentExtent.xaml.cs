@@ -16,6 +16,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using UITests.Shared.Helpers;
 #if HAS_UNO
 using Uno.Foundation.Logging;
 #else
@@ -27,11 +28,8 @@ using Uno.Logging;
 
 namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 {
-	public class ScrollViewerContentExtentData : INotifyPropertyChanged
+	public class ScrollViewerContentExtentData : BindableBase
 	{
-		public event PropertyChangedEventHandler PropertyChanged;
-		private void RaisePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
 		public string ScrollViewerName { get; set; }
 		private string _svActualWidth;
 		public string SVActualWidth
@@ -564,7 +562,7 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 		}
 	}
 
-	[SampleControlInfo(category: "ScrollViewer")]
+	[Sample("ScrollViewer")]
 	public sealed partial class ScrollViewer_ContentExtent : Page, INotifyPropertyChanged
 	{
 		public ScrollViewer_ContentExtent()
