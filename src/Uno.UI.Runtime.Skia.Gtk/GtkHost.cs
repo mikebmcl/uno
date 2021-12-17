@@ -121,6 +121,8 @@ namespace Uno.UI.Runtime.Skia
 			Windows.UI.Core.CoreDispatcher.DispatchOverride = Dispatch;
 			Windows.UI.Core.CoreDispatcher.HasThreadAccessOverride = () => _isDispatcherThread;
 
+			_window.WindowStateEvent += OnWindowStateChanged;
+
 			var overlay = new Overlay();
 
 			_eventBox = new EventBox();
