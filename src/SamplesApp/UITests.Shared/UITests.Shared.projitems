@@ -5539,6 +5539,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Windows_UI_Xaml_Controls\ScrollBar\ScrollBar_Simple.xaml.cs">
       <DependentUpon>ScrollBar_Simple.xaml</DependentUpon>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Windows_UI_Xaml_Controls\ScrollViewerTests\ScrollViewerContentExtentData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Windows_UI_Xaml_Controls\ScrollViewerTests\ScrollViewer_Add_Remove.xaml.cs">
       <DependentUpon>ScrollViewer_Add_Remove.xaml</DependentUpon>
     </Compile>
