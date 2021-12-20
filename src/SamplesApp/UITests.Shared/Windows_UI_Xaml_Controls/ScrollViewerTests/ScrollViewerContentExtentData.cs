@@ -12,65 +12,90 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 	public class ScrollViewerContentExtentData : BindableBase
 	{
 		// We consider a one pixel difference value to be a valid difference due to internal layout and rounding differences on various platforms.
-		private const int m_maximumValidDifference = 1;
-		public bool? InvalidDifferenceBool(double x, double y) => Math.Abs(x - y) > m_maximumValidDifference;
-		public Visibility InvalidDifferenceVisibility(double x, double y) => InvalidDifferenceBool(x, y) is true ? Visibility.Visible : Visibility.Collapsed;
+		private const int _maximumValidDifference = 1;
+		public static bool InvalidDifferenceCheck(double x, double y) => Math.Abs(x - y) > _maximumValidDifference;
+		public static int TestPassedValue(double x, double y) => InvalidDifferenceCheck(x, y) ? 0 : 1;
+		public bool? InvalidDifferenceBool(double x, double y) => InvalidDifferenceCheck(x, y);
 		public string DifferenceCheckResultText(double x, double y) => InvalidDifferenceBool(x, y) is true ? "Failed" : "Passed";
 		public FontWeight DifferenceCheckResultFontWeight(double x, double y) => InvalidDifferenceBool(x, y) is true ? FontWeights.Bold : FontWeights.Normal;
 
-		public static string ThicknessAsString(Thickness t) => $"{{ L: {t.Left} T: {t.Top} R: {t.Right} B: {t.Bottom} }}";
-
-		private string m_name;
-		public string Name
+		public void UpdateTestsPassedFailedValues(int numberOfTests, int passedTestsCount)
 		{
-			get => m_name;
+			NumberOfTests = numberOfTests;
+			PassedTestsCount = passedTestsCount;
+			TestsPassedFailedCountText = $"{passedTestsCount} of {numberOfTests} Tests Passed";
+		}
+
+		public int NumberOfTests { get; set; }
+		public int PassedTestsCount { get; set; }
+
+		private string _testsPassedFailedCountText;
+		public string TestsPassedFailedCountText
+		{
+			get => _testsPassedFailedCountText;
 			set
 			{
-				if (m_name != value)
+				if (_testsPassedFailedCountText != value)
 				{
-					m_name = value;
+					_testsPassedFailedCountText = value;
 					RaisePropertyChanged();
 				}
 			}
 		}
-		private string m_scrollViewerName;
-		public string ScrollViewerName
+
+		public static string ThicknessAsString(Thickness t) => $"{{ L:{t.Left} T:{t.Top} R:{t.Right} B:{t.Bottom} }}";
+
+		private string _name;
+		public string Name
 		{
-			get => m_scrollViewerName;
+			get => _name;
 			set
 			{
-				if (m_scrollViewerName != value)
+				if (_name != value)
 				{
-					m_scrollViewerName = value;
+					_name = value;
+					RaisePropertyChanged();
+				}
+			}
+		}
+		private string _scrollViewerName;
+		public string ScrollViewerName
+		{
+			get => _scrollViewerName;
+			set
+			{
+				if (_scrollViewerName != value)
+				{
+					_scrollViewerName = value;
 					RaisePropertyChanged();
 				}
 			}
 		}
 		public string ScrollViewerPaddingName => nameof(ScrollViewerPadding) + ":";
-		private Thickness m_scrollViewerPadding;
+		private Thickness _scrollViewerPadding;
 		public Thickness ScrollViewerPadding
 		{
-			get => m_scrollViewerPadding;
+			get => _scrollViewerPadding;
 			set
 			{
-				if (m_scrollViewerPadding != value)
+				if (_scrollViewerPadding != value)
 				{
-					m_scrollViewerPadding = value;
+					_scrollViewerPadding = value;
 					RaisePropertyChanged();
 				}
 			}
 		}
 
 		public string ContentMarginName => nameof(ContentMargin) + ":";
-		private Thickness m_contentMargin;
+		private Thickness _contentMargin;
 		public Thickness ContentMargin
 		{
-			get => m_contentMargin;
+			get => _contentMargin;
 			set
 			{
-				if (m_contentMargin != value)
+				if (_contentMargin != value)
 				{
-					m_contentMargin = value;
+					_contentMargin = value;
 					RaisePropertyChanged();
 				}
 			}
@@ -183,7 +208,7 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 		}
 
 		private string _viewPortWidth;
-		public string ViewPortWidth
+		public string ViewportWidth
 		{
 			get => _viewPortWidth;
 			set
@@ -196,7 +221,7 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			}
 		}
 		private double _viewPortWidthValue;
-		public double ViewPortWidthValue
+		public double ViewportWidthValue
 		{
 			get => _viewPortWidthValue;
 			set
@@ -209,7 +234,7 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			}
 		}
 		private double _viewPortWidthExpectedDifference;
-		public double ViewPortWidthExpectedDifference
+		public double ViewportWidthExpectedDifference
 		{
 			get => _viewPortWidthExpectedDifference;
 			set
@@ -222,7 +247,7 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			}
 		}
 		private double _viewPortWidthActualDifference;
-		public double ViewPortWidthActualDifference
+		public double ViewportWidthActualDifference
 		{
 			get => _viewPortWidthActualDifference;
 			set
@@ -236,7 +261,7 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 		}
 
 		private string _viewPortHeight;
-		public string ViewPortHeight
+		public string ViewportHeight
 		{
 			get => _viewPortHeight;
 			set
@@ -249,7 +274,7 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			}
 		}
 		private double _viewPortHeightValue;
-		public double ViewPortHeightValue
+		public double ViewportHeightValue
 		{
 			get => _viewPortHeightValue;
 			set
@@ -262,7 +287,7 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			}
 		}
 		private double _viewPortHeightExpectedDifference;
-		public double ViewPortHeightExpectedDifference
+		public double ViewportHeightExpectedDifference
 		{
 			get => _viewPortHeightExpectedDifference;
 			set
@@ -275,7 +300,7 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			}
 		}
 		private double _viewPortHeightActualDifference;
-		public double ViewPortHeightActualDifference
+		public double ViewportHeightActualDifference
 		{
 			get => _viewPortHeightActualDifference;
 			set
