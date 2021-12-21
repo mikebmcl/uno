@@ -630,5 +630,60 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 				}
 			}
 		}
+
+		private const int _numberOfDigitsForRounding = 3;
+		private double _horizontalOffsetValue;
+		public double HorizontalOffsetValue
+		{
+			get => _horizontalOffsetValue;
+			set
+			{
+				if (_horizontalOffsetValue != Math.Round(value, _numberOfDigitsForRounding))
+				{
+					_horizontalOffsetValue = Math.Round(value, _numberOfDigitsForRounding);
+					RaisePropertyChanged();
+				}
+			}
+		}
+		private double _horizontalOffsetAfterScrollTest;
+		public double HorizontalOffsetAfterScrollTest
+		{
+			get => _horizontalOffsetAfterScrollTest;
+			set
+			{
+				if (_horizontalOffsetAfterScrollTest != Math.Round(value, _numberOfDigitsForRounding))
+				{
+					_horizontalOffsetAfterScrollTest = Math.Round(value, _numberOfDigitsForRounding);
+					RaisePropertyChanged();
+				}
+			}
+		}
+
+		private double _verticalOffsetValue;
+		public double VerticalOffsetValue
+		{
+			get => _verticalOffsetValue;
+			set
+			{
+				if (_verticalOffsetValue != Math.Round(value, _numberOfDigitsForRounding))
+				{
+					_verticalOffsetValue = Math.Round(value, _numberOfDigitsForRounding);
+					RaisePropertyChanged();
+				}
+			}
+		}
+		private double _verticalOffsetAfterScrollTest;
+		public double VerticalOffsetAfterScrollTest
+		{
+			get => _verticalOffsetAfterScrollTest;
+			set
+			{
+				if (_verticalOffsetAfterScrollTest != Math.Round(value, _numberOfDigitsForRounding))
+				{
+					_verticalOffsetAfterScrollTest = Math.Round(value, _numberOfDigitsForRounding);
+					RaisePropertyChanged();
+				}
+			}
+		}
 	}
 }
