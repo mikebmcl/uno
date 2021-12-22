@@ -77,6 +77,9 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			BothScrollViewerContentExtentData = RunAddDataForLoggerAndPopulateExpectedAndActualValuesForScrollViewerContentExtentData(BothScrollViewer);
 		}
 
+		private bool _neitherScrollViewerTestBegan;
+		private bool _neitherScrollViewerHorizontalScrollTestReady;
+		private bool _neitherScrollViewerVerticalScrollTestReady;
 		private bool _neitherScrollViewerScrollTestComplete;
 		private double _neitherScrollViewerScrollTestHorizontalResult;
 		private double _neitherScrollViewerScrollTestVerticalResult;
@@ -86,15 +89,33 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			var sv = NeitherScrollViewer;
 			if (data != null)
 			{
-				if (!_neitherScrollViewerScrollTestComplete && sv.HorizontalOffset != 0 && sv.VerticalOffset != 0)
+				if (!_neitherScrollViewerScrollTestComplete)
 				{
-					FinishRunScrollToOffsetsTest(sv, data);
+					if (_neitherScrollViewerTestBegan && !_neitherScrollViewerHorizontalScrollTestReady)
+					{
+						_neitherScrollViewerHorizontalScrollTestReady = true;
+						sv.ChangeView(null, sv.ScrollableHeight, null, true);
+					}
+					if (_neitherScrollViewerHorizontalScrollTestReady && !_neitherScrollViewerVerticalScrollTestReady && sv.HorizontalOffset > 0)
+					{
+						_neitherScrollViewerVerticalScrollTestReady = true;
+						_neitherScrollViewerScrollTestHorizontalResult = sv.HorizontalOffset;
+						sv.ChangeView(sv.ScrollableWidth, null, null, true);
+					}
+					if (_neitherScrollViewerHorizontalScrollTestReady && _neitherScrollViewerVerticalScrollTestReady && sv.VerticalOffset > 0)
+					{
+						_neitherScrollViewerScrollTestVerticalResult = sv.VerticalOffset;
+						FinishRunScrollToOffsetsTest(sv, data);
+					}
 				}
 				data.HorizontalOffsetValue = sv.HorizontalOffset;
 				data.VerticalOffsetValue = sv.VerticalOffset;
 			}
 		}
 
+		private bool _contentMarginScrollViewerTestBegan;
+		private bool _contentMarginScrollViewerHorizontalScrollTestReady;
+		private bool _contentMarginScrollViewerVerticalScrollTestReady;
 		private bool _contentMarginScrollViewerScrollTestComplete;
 		private double _contentMarginScrollViewerScrollTestHorizontalResult;
 		private double _contentMarginScrollViewerScrollTestVerticalResult;
@@ -104,16 +125,33 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			var sv = ContentMarginScrollViewer;
 			if (data != null)
 			{
-				if (!_contentMarginScrollViewerScrollTestComplete && sv.HorizontalOffset != 0 && sv.VerticalOffset != 0)
+				if (!_contentMarginScrollViewerScrollTestComplete)
 				{
-					FinishRunScrollToOffsetsTest(sv, data);
-					PopulateExpectedAndActualValuesForScrollViewerContentExtentData(GetContentExtentDataForScrollViewer(NeitherScrollViewer), data, sv.Padding, ((sv.Content as StackPanel)?.Margin ?? default));
+					if (_contentMarginScrollViewerTestBegan && !_contentMarginScrollViewerHorizontalScrollTestReady)
+					{
+						_contentMarginScrollViewerHorizontalScrollTestReady = true;
+						sv.ChangeView(null, sv.ScrollableHeight, null, true);
+					}
+					if (_contentMarginScrollViewerHorizontalScrollTestReady && !_contentMarginScrollViewerVerticalScrollTestReady && sv.HorizontalOffset > 0)
+					{
+						_contentMarginScrollViewerVerticalScrollTestReady = true;
+						_contentMarginScrollViewerScrollTestHorizontalResult = sv.HorizontalOffset;
+						sv.ChangeView(sv.ScrollableWidth, null, null, true);
+					}
+					if (_contentMarginScrollViewerHorizontalScrollTestReady && _contentMarginScrollViewerVerticalScrollTestReady && sv.VerticalOffset > 0)
+					{
+						_contentMarginScrollViewerScrollTestVerticalResult = sv.VerticalOffset;
+						FinishRunScrollToOffsetsTest(sv, data);
+					}
 				}
 				data.HorizontalOffsetValue = sv.HorizontalOffset;
 				data.VerticalOffsetValue = sv.VerticalOffset;
 			}
 		}
 
+		private bool _svPaddingScrollViewerTestBegan;
+		private bool _svPaddingScrollViewerHorizontalScrollTestReady;
+		private bool _svPaddingScrollViewerVerticalScrollTestReady;
 		private bool _svPaddingScrollViewerScrollTestComplete;
 		private double _svPaddingScrollViewerScrollTestHorizontalResult;
 		private double _svPaddingScrollViewerScrollTestVerticalResult;
@@ -123,16 +161,33 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			var sv = SVPaddingScrollViewer;
 			if (data != null)
 			{
-				if (!_svPaddingScrollViewerScrollTestComplete && sv.HorizontalOffset != 0 && sv.VerticalOffset != 0)
+				if (!_svPaddingScrollViewerScrollTestComplete)
 				{
-					FinishRunScrollToOffsetsTest(sv, data);
-					PopulateExpectedAndActualValuesForScrollViewerContentExtentData(GetContentExtentDataForScrollViewer(NeitherScrollViewer), data, sv.Padding, ((sv.Content as StackPanel)?.Margin ?? default));
+					if (_svPaddingScrollViewerTestBegan && !_svPaddingScrollViewerHorizontalScrollTestReady)
+					{
+						_svPaddingScrollViewerHorizontalScrollTestReady = true;
+						sv.ChangeView(null, sv.ScrollableHeight, null, true);
+					}
+					if (_svPaddingScrollViewerHorizontalScrollTestReady && !_svPaddingScrollViewerVerticalScrollTestReady && sv.HorizontalOffset > 0)
+					{
+						_svPaddingScrollViewerVerticalScrollTestReady = true;
+						_svPaddingScrollViewerScrollTestHorizontalResult = sv.HorizontalOffset;
+						sv.ChangeView(sv.ScrollableWidth, null, null, true);
+					}
+					if (_svPaddingScrollViewerHorizontalScrollTestReady && _svPaddingScrollViewerVerticalScrollTestReady && sv.VerticalOffset > 0)
+					{
+						_svPaddingScrollViewerScrollTestVerticalResult = sv.VerticalOffset;
+						FinishRunScrollToOffsetsTest(sv, data);
+					}
 				}
 				data.HorizontalOffsetValue = sv.HorizontalOffset;
 				data.VerticalOffsetValue = sv.VerticalOffset;
 			}
 		}
 
+		private bool _bothScrollViewerTestBegan;
+		private bool _bothScrollViewerHorizontalScrollTestReady;
+		private bool _bothScrollViewerVerticalScrollTestReady;
 		private bool _bothScrollViewerScrollTestComplete;
 		private double _bothScrollViewerScrollTestHorizontalResult;
 		private double _bothScrollViewerScrollTestVerticalResult;
@@ -142,10 +197,24 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			var sv = BothScrollViewer;
 			if (data != null)
 			{
-				if (!_bothScrollViewerScrollTestComplete && sv.HorizontalOffset != 0 && sv.VerticalOffset != 0)
+				if (!_bothScrollViewerScrollTestComplete)
 				{
-					FinishRunScrollToOffsetsTest(sv, data);
-					PopulateExpectedAndActualValuesForScrollViewerContentExtentData(GetContentExtentDataForScrollViewer(NeitherScrollViewer), data, sv.Padding, ((sv.Content as StackPanel)?.Margin ?? default));
+					if (_bothScrollViewerTestBegan && !_bothScrollViewerHorizontalScrollTestReady)
+					{
+						_bothScrollViewerHorizontalScrollTestReady = true;
+						sv.ChangeView(null, sv.ScrollableHeight, null, true);
+					}
+					if (_bothScrollViewerHorizontalScrollTestReady && !_bothScrollViewerVerticalScrollTestReady && sv.HorizontalOffset > 0)
+					{
+						_bothScrollViewerVerticalScrollTestReady = true;
+						_bothScrollViewerScrollTestHorizontalResult = sv.HorizontalOffset;
+						sv.ChangeView(sv.ScrollableWidth, null, null, true);
+					}
+					if (_bothScrollViewerHorizontalScrollTestReady && _bothScrollViewerVerticalScrollTestReady && sv.VerticalOffset > 0)
+					{
+						_bothScrollViewerScrollTestVerticalResult = sv.VerticalOffset;
+						FinishRunScrollToOffsetsTest(sv, data);
+					}
 				}
 				data.HorizontalOffsetValue = sv.HorizontalOffset;
 				data.VerticalOffsetValue = sv.VerticalOffset;
@@ -402,7 +471,12 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 						// But because it will be updated even after it's added to _dataForLogger we need to run the scroll tests here.
 						var sv = NeitherScrollViewer;
 						var dataToPopulate = dataInfo.data;
-						RunScrollToOffsetsTests(sv, dataToPopulate);
+						if (!_neitherScrollViewerScrollTestComplete && NeitherScrollViewer.HorizontalOffset == 0 && NeitherScrollViewer.VerticalOffset == 0)
+						{
+							RunScrollToOffsetsTests(sv, dataToPopulate);
+							dataToPopulate.HorizontalOffsetAfterScrollTest = _neitherScrollViewerScrollTestHorizontalResult;
+							dataToPopulate.VerticalOffsetAfterScrollTest = _neitherScrollViewerScrollTestVerticalResult;
+						}
 					}
 					break;
 				default:
@@ -429,23 +503,30 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 					{
 						continue;
 					}
-					ScrollViewer sv = null;
-					switch (item.Value.data.ScrollViewerName)
+					switch (dataInfo.data.ScrollViewerName)
 					{
 						case nameof(ContentMarginScrollViewer):
-							sv = ContentMarginScrollViewer;
+							if (!_contentMarginScrollViewerScrollTestComplete)
+							{
+								RunScrollToOffsetsTests(ContentMarginScrollViewer, dataInfo.data);
+							}
 							break;
 						case nameof(SVPaddingScrollViewer):
-							sv = SVPaddingScrollViewer;
+							if (!_svPaddingScrollViewerScrollTestComplete)
+							{
+								RunScrollToOffsetsTests(SVPaddingScrollViewer, dataInfo.data);
+							}
 							break;
 						case nameof(BothScrollViewer):
-							sv = BothScrollViewer;
+							if (!_bothScrollViewerScrollTestComplete)
+							{
+								RunScrollToOffsetsTests(BothScrollViewer, dataInfo.data);
+							}
 							break;
 						default:
-							_log.Debug($"Unknown ScrollViewer name '{item.Value.data.ScrollViewerName ?? "(null)"}'");
+							_log.Debug($"Unknown ScrollViewer name '{dataInfo.data.ScrollViewerName ?? "(null)"}'");
 							break;
 					}
-					RunScrollToOffsetsTests(sv, item.Value.data);
 
 					PopulateExpectedAndActualValuesForScrollViewerContentExtentData(neitherData, item.Value.data, item.Value.scrollViewerPadding, item.Value.contentMargin);
 				}
@@ -454,24 +535,30 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			{
 				if (_dataForLogger.ContainsKey(nameof(NeitherScrollViewer)))
 				{
-					ScrollViewer sv = null;
 					switch (dataInfo.data.ScrollViewerName)
 					{
 						case nameof(ContentMarginScrollViewer):
-							sv = ContentMarginScrollViewer;
+							if (!_contentMarginScrollViewerScrollTestComplete)
+							{
+								RunScrollToOffsetsTests(ContentMarginScrollViewer, dataInfo.data);
+							}
 							break;
 						case nameof(SVPaddingScrollViewer):
-							sv = SVPaddingScrollViewer;
+							if (!_svPaddingScrollViewerScrollTestComplete)
+							{
+								RunScrollToOffsetsTests(SVPaddingScrollViewer, dataInfo.data);
+							}
 							break;
 						case nameof(BothScrollViewer):
-							sv = BothScrollViewer;
+							if (!_bothScrollViewerScrollTestComplete)
+							{
+								RunScrollToOffsetsTests(BothScrollViewer, dataInfo.data);
+							}
 							break;
 						default:
 							_log.Debug($"Unknown ScrollViewer name '{dataInfo.data.ScrollViewerName ?? "(null)"}'");
 							break;
 					}
-					RunScrollToOffsetsTests(sv, dataInfo.data);
-
 					PopulateExpectedAndActualValuesForScrollViewerContentExtentData(_dataForLogger[nameof(NeitherScrollViewer)].data, dataInfo.data, dataInfo.scrollViewerPadding, dataInfo.contentMargin);
 				}
 			}
@@ -491,26 +578,42 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			{
 				return;
 			}
-			if (sv.ChangeView(sv.ScrollableWidth, null, null, true))
+			// UWP doesn't set the offset values immediately and WASM will report that it scrolled to both offsets even if it didn't if we tell it to scroll to both so we need to go through this complicated process of starting the tests here then continuing them stage by stage in the individual ViewChanged handlers.
+			switch (sv.Name)
 			{
-				if (sv.ChangeView(null, sv.ScrollableHeight, null, true))
-				{
-					dataToPopulate.HorizontalOffsetAfterScrollTest = sv.HorizontalOffset;
-					_ = sv.ChangeView(sv.ScrollableWidth, null, null, true);
-					dataToPopulate.VerticalOffsetAfterScrollTest = sv.VerticalOffset;
-					if (sv.HorizontalOffset == 0 && sv.VerticalOffset == 0)
+				case nameof(NeitherScrollViewer):
+					if (_neitherScrollViewerScrollTestComplete)
 					{
-						// UWP doesn't instantly update the offset values so we need to wait for it to fire the ViewChanged event for the ScrollViewer.
 						return;
 					}
-					FinishRunScrollToOffsetsTest(sv, dataToPopulate);
-				}
-				else
-				{
-					_log.Debug($"Failed to scroll {nameof(ScrollViewer.VerticalOffset)} to {sv.ScrollableHeight} for {nameof(ScrollViewer)} {sv.Name}.");
-				}
+					_neitherScrollViewerTestBegan = true;
+					break;
+				case nameof(ContentMarginScrollViewer):
+					if (_contentMarginScrollViewerScrollTestComplete)
+					{
+						return;
+					}
+					_contentMarginScrollViewerTestBegan = true;
+					break;
+				case nameof(SVPaddingScrollViewer):
+					if (_svPaddingScrollViewerScrollTestComplete)
+					{
+						return;
+					}
+					_svPaddingScrollViewerTestBegan = true;
+					break;
+				case nameof(BothScrollViewer):
+					if (_bothScrollViewerScrollTestComplete)
+					{
+						return;
+					}
+					_bothScrollViewerTestBegan = true;
+					break;
+				default:
+					_log.Debug($"Unknown ScrollViewer name '{sv.Name ?? "(null)"}'");
+					break;
 			}
-			else
+			if (!sv.ChangeView(sv.ScrollableWidth, null, null, true))
 			{
 				_log.Debug($"Failed to scroll {nameof(ScrollViewer.HorizontalOffset)} to {sv.ScrollableWidth} for {nameof(ScrollViewer)} {sv.Name}.");
 			}
@@ -521,56 +624,97 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			switch (sv.Name)
 			{
 				case nameof(NeitherScrollViewer):
+					if (_neitherScrollViewerScrollTestComplete)
+					{
+						return;
+					}
 					_neitherScrollViewerScrollTestComplete = true;
-					_neitherScrollViewerScrollTestHorizontalResult = sv.HorizontalOffset;
-					_neitherScrollViewerScrollTestVerticalResult = sv.VerticalOffset;
+					dataToPopulate.HorizontalOffsetAfterScrollTest = _neitherScrollViewerScrollTestHorizontalResult;
+					dataToPopulate.VerticalOffsetAfterScrollTest = _neitherScrollViewerScrollTestVerticalResult;
+					NeitherScrollViewerContentExtentData.HorizontalOffsetAfterScrollTest = _neitherScrollViewerScrollTestHorizontalResult;
+					NeitherScrollViewerContentExtentData.VerticalOffsetAfterScrollTest = _neitherScrollViewerScrollTestVerticalResult;
+					if (_contentMarginScrollViewerScrollTestComplete)
+					{
+						PopulateExpectedAndActualValuesForScrollViewerContentExtentData(dataToPopulate, ContentMarginScrollViewerContentExtentData, ContentMarginScrollViewer.Padding, ((ContentMarginScrollViewer.Content as StackPanel)?.Margin ?? default));
+					}
+					if (_svPaddingScrollViewerScrollTestComplete)
+					{
+						PopulateExpectedAndActualValuesForScrollViewerContentExtentData(dataToPopulate, SVPaddingScrollViewerContentExtentData, SVPaddingScrollViewer.Padding, ((SVPaddingScrollViewer.Content as StackPanel)?.Margin ?? default));
+					}
+					if (_bothScrollViewerScrollTestComplete)
+					{
+						PopulateExpectedAndActualValuesForScrollViewerContentExtentData(dataToPopulate, BothScrollViewerContentExtentData, BothScrollViewer.Padding, ((BothScrollViewer.Content as StackPanel)?.Margin ?? default));
+					}
 					break;
 				case nameof(ContentMarginScrollViewer):
+					if (_contentMarginScrollViewerScrollTestComplete)
+					{
+						return;
+					}
 					_contentMarginScrollViewerScrollTestComplete = true;
-					_contentMarginScrollViewerScrollTestHorizontalResult = sv.HorizontalOffset;
-					_contentMarginScrollViewerScrollTestVerticalResult = sv.VerticalOffset;
+					dataToPopulate.HorizontalOffsetAfterScrollTest = _contentMarginScrollViewerScrollTestHorizontalResult;
+					dataToPopulate.VerticalOffsetAfterScrollTest = _contentMarginScrollViewerScrollTestVerticalResult;
+					if (_neitherScrollViewerScrollTestComplete)
+					{
+						PopulateExpectedAndActualValuesForScrollViewerContentExtentData(NeitherScrollViewerContentExtentData, dataToPopulate, sv.Padding, ((sv.Content as StackPanel)?.Margin ?? default));
+					}
 					break;
 				case nameof(SVPaddingScrollViewer):
+					if (_svPaddingScrollViewerScrollTestComplete)
+					{
+						return;
+					}
 					_svPaddingScrollViewerScrollTestComplete = true;
-					_svPaddingScrollViewerScrollTestHorizontalResult = sv.HorizontalOffset;
-					_svPaddingScrollViewerScrollTestVerticalResult = sv.VerticalOffset;
+					dataToPopulate.HorizontalOffsetAfterScrollTest = _svPaddingScrollViewerScrollTestHorizontalResult;
+					dataToPopulate.VerticalOffsetAfterScrollTest = _svPaddingScrollViewerScrollTestVerticalResult;
+					if (_neitherScrollViewerScrollTestComplete)
+					{
+						PopulateExpectedAndActualValuesForScrollViewerContentExtentData(NeitherScrollViewerContentExtentData, dataToPopulate, sv.Padding, ((sv.Content as StackPanel)?.Margin ?? default));
+					}
 					break;
 				case nameof(BothScrollViewer):
+					if (_bothScrollViewerScrollTestComplete)
+					{
+						return;
+					}
 					_bothScrollViewerScrollTestComplete = true;
-					_bothScrollViewerScrollTestHorizontalResult = sv.HorizontalOffset;
-					_bothScrollViewerScrollTestVerticalResult = sv.VerticalOffset;
+					dataToPopulate.HorizontalOffsetAfterScrollTest = _bothScrollViewerScrollTestHorizontalResult;
+					dataToPopulate.VerticalOffsetAfterScrollTest = _bothScrollViewerScrollTestVerticalResult;
+					if (_neitherScrollViewerScrollTestComplete)
+					{
+						PopulateExpectedAndActualValuesForScrollViewerContentExtentData(NeitherScrollViewerContentExtentData, dataToPopulate, sv.Padding, ((sv.Content as StackPanel)?.Margin ?? default));
+					}
 					break;
 				default:
 					_log.Debug($"Unknown {nameof(ScrollViewer)} '{sv.Name ?? "(null)"}'");
 					break;
 			}
-			dataToPopulate.HorizontalOffsetAfterScrollTest = sv.HorizontalOffset;
-			dataToPopulate.VerticalOffsetAfterScrollTest = sv.VerticalOffset;
-			//if (!sv.ChangeView(0, 0, null, true))
-			//{
-			//	_log.Debug($"Failed to scroll to 0,0 for {nameof(ScrollViewer)} {sv.Name}. Will try to scroll one axis at a time.");
-			if (!sv.ChangeView(0, null, null, true))
+
+			if (!sv.ChangeView(0, 0, null, true))
 			{
-				_log.Debug($"Failed to scroll {nameof(ScrollViewer.HorizontalOffset)} to 0 for {nameof(ScrollViewer)} {sv.Name}.");
+				_log.Debug($"Failed to scroll to 0,0 for {nameof(ScrollViewer)} {sv.Name}. Will try to scroll one axis at a time.");
+				if (!sv.ChangeView(0, null, null, true))
+				{
+					_log.Debug($"Failed to scroll {nameof(ScrollViewer.HorizontalOffset)} to 0 for {nameof(ScrollViewer)} {sv.Name}.");
+				}
+				else
+				{
+					dataToPopulate.HorizontalOffsetValue = 0;
+				}
+				if (!sv.ChangeView(null, 0, null, true))
+				{
+					_log.Debug($"Failed to scroll {nameof(ScrollViewer.VerticalOffset)} to 0.");
+				}
+				else
+				{
+					dataToPopulate.VerticalOffsetValue = 0;
+				}
 			}
 			else
 			{
 				dataToPopulate.HorizontalOffsetValue = 0;
-			}
-			if (!sv.ChangeView(null, 0, null, true))
-			{
-				_log.Debug($"Failed to scroll {nameof(ScrollViewer.VerticalOffset)} to 0.");
-			}
-			else
-			{
 				dataToPopulate.VerticalOffsetValue = 0;
 			}
-			//}
-			//else
-			//{
-			//	dataToPopulate.HorizontalOffsetValue = 0;
-			//	dataToPopulate.VerticalOffsetValue = 0;
-			//}
 		}
 
 		private void PopulateExpectedAndActualValuesForScrollViewerContentExtentData(ScrollViewerContentExtentData neither,
@@ -634,20 +778,26 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			{
 				case nameof(ContentMarginScrollViewer):
 					sv = ContentMarginScrollViewer;
+					dataToPopulate.HorizontalOffsetAfterScrollTest = _contentMarginScrollViewerScrollTestHorizontalResult;
+					dataToPopulate.VerticalOffsetAfterScrollTest = _contentMarginScrollViewerScrollTestVerticalResult;
 					break;
 				case nameof(SVPaddingScrollViewer):
 					sv = SVPaddingScrollViewer;
+					dataToPopulate.HorizontalOffsetAfterScrollTest = _svPaddingScrollViewerScrollTestHorizontalResult;
+					dataToPopulate.VerticalOffsetAfterScrollTest = _svPaddingScrollViewerScrollTestVerticalResult;
 					break;
 				case nameof(BothScrollViewer):
 					sv = BothScrollViewer;
+					dataToPopulate.HorizontalOffsetAfterScrollTest = _bothScrollViewerScrollTestHorizontalResult;
+					dataToPopulate.VerticalOffsetAfterScrollTest = _bothScrollViewerScrollTestVerticalResult;
 					break;
 				default:
 					_log.Debug($"Unknown ScrollViewer name '{dataToPopulate.ScrollViewerName ?? "(null)"}'");
 					break;
 			}
-			//RunScrollToOffsetsTests(sv, dataToPopulate);
 			passedTestsCount += ScrollViewerContentExtentData.TestPassedValue(sv.ScrollableWidth, dataToPopulate.HorizontalOffsetAfterScrollTest);
 			passedTestsCount += ScrollViewerContentExtentData.TestPassedValue(sv.ScrollableHeight, dataToPopulate.VerticalOffsetAfterScrollTest);
+			//RunScrollToOffsetsTests(sv, dataToPopulate);
 			dataToPopulate.UpdateTestsPassedFailedValues(numberOfTests, passedTestsCount);
 		}
 
