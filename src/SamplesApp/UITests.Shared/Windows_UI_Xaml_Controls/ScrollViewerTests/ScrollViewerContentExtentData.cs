@@ -5,12 +5,17 @@ using Windows.UI.Xaml;
 
 using UITests.Shared.Helpers;
 using Windows.UI.Text;
+using Windows.UI.Xaml.Controls;
 
 namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 {
 	[Windows.UI.Xaml.Data.Bindable]
 	public class ScrollViewerContentExtentData : BindableBase
 	{
+		public ScrollViewerContentExtentData(string displayName)
+		{
+			DisplayName = displayName;
+		}
 		// We consider a one pixel difference value to be a valid difference due to internal layout and rounding differences on various platforms.
 		private const int _maximumValidDifference = 1;
 		public static bool InvalidDifferenceCheck(double x, double y) => Math.Abs(x - y) > _maximumValidDifference;
@@ -19,10 +24,248 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 		public string DifferenceCheckResultText(double x, double y) => InvalidDifferenceBool(x, y) is true ? "Failed" : "Passed";
 		public FontWeight DifferenceCheckResultFontWeight(double x, double y) => InvalidDifferenceBool(x, y) is true ? FontWeights.Bold : FontWeights.Normal;
 
-		public void UpdateTestsPassedFailedValues(int numberOfTests, int passedTestsCount)
+		private string _dblFormat = "F";
+		private System.Globalization.CultureInfo _cultureInfo = System.Globalization.CultureInfo.CurrentUICulture;
+		private int _numberOfDigitsForRounding = 3;
+		public int NumberOfDigitsForRounding
 		{
+			get => _numberOfDigitsForRounding;
+			set
+			{
+				if (_numberOfDigitsForRounding != value)
+				{
+					_numberOfDigitsForRounding = value;
+					RaisePropertyChanged();
+				}
+			}
+		}
+		private bool _scrollTestBegan;
+		private bool _scrollTestHorizontalScrollIsReady;
+		private bool _scrollTestVerticalScrollIsReady;
+		private bool _scrollTestComplete;
+		private bool _scrollTestIsRunning;
+		private bool _scrollTestResetRequested;
+		private void ResetScrollTestValues()
+		{
+			_scrollTestHorizontalScrollIsReady = false;
+			_scrollTestVerticalScrollIsReady = false;
+			_scrollTestComplete = false;
+			HorizontalOffsetAfterScrollTest = 0;
+			VerticalOffsetAfterScrollTest = 0;
+		}
+
+		public void BeginScrollTest(ScrollViewer sv)
+		{
+			var name = sv.Name;
+			ResetScrollTestValues();
+			if (_scrollTestIsRunning)
+			{
+				if (_scrollTestResetRequested && (sv.ScrollableWidth == 0 || sv.ScrollableHeight == 0))
+				{
+					return;
+				}
+				_scrollTestResetRequested = true;
+				// We don't always get an exact match when the HorizontalOffset is theoretically equal to the ScrollableWidth on Android (maybe other platforms too), so we allow a less than 1 pixel discrepancy rather than checking for exact equality
+				if (Math.Abs(sv.HorizontalOffset - sv.ScrollableWidth) < 1)
+				{
+					_ = sv.ChangeView(0, 0, null, true);
+				}
+				else
+				{
+					_scrollTestBegan = true;
+					_ = sv.ChangeView(sv.ScrollableWidth, 0, null, true);
+				}
+				return;
+			}
+			_scrollTestIsRunning = true;
+			_scrollTestBegan = true;
+			_ = sv.ChangeView(sv.ScrollableWidth, 0, null, true);
+		}
+
+		public void UpdateScrollTest(ScrollViewer noMarginAndNoPadding, ScrollViewer sv)
+		{
+			var name = sv.Name;
+			if (_scrollTestResetRequested)
+			{
+				ResetScrollTestValues();
+				_scrollTestResetRequested = false;
+				_scrollTestIsRunning = true;
+				if (Math.Abs(sv.HorizontalOffset - sv.ScrollableWidth) < 1)
+				{
+					_ = sv.ChangeView(0, 0, null, true);
+				}
+				else
+				{
+					_scrollTestBegan = true;
+					_ = sv.ChangeView(sv.ScrollableWidth, 0, null, true);
+				}
+				return;
+			}
+			if (!_scrollTestComplete)
+			{
+				if (_scrollTestIsRunning && !_scrollTestBegan)
+				{
+					if (Math.Abs(sv.HorizontalOffset - sv.ScrollableWidth) < 1)
+					{
+						ResetScrollTestValues();
+						_ = sv.ChangeView(0, 0, null, true);
+					}
+					else
+					{
+						_scrollTestBegan = true;
+						_scrollTestHorizontalScrollIsReady = false;
+						_scrollTestVerticalScrollIsReady = false;
+						_ = sv.ChangeView(sv.ScrollableWidth, 0, null, true);
+					}
+					return;
+				}
+				if (_scrollTestBegan && !_scrollTestHorizontalScrollIsReady && sv.VerticalOffset == 0)
+				{
+					if (sv.HorizontalOffset == 0)
+					{
+						_scrollTestBegan = true;
+						_scrollTestVerticalScrollIsReady = false;
+						_ = sv.ChangeView(sv.ScrollableWidth, 0, null, true);
+						return;
+					}
+					else
+					{
+						_scrollTestHorizontalScrollIsReady = true;
+						_scrollTestVerticalScrollIsReady = false;
+						_ = sv.ChangeView(null, sv.ScrollableHeight, null, true);
+						return;
+					}
+				}
+				if (_scrollTestHorizontalScrollIsReady && !_scrollTestVerticalScrollIsReady && sv.HorizontalOffset > 0)
+				{
+					_scrollTestVerticalScrollIsReady = true;
+					HorizontalOffsetAfterScrollTest = sv.HorizontalOffset;
+					_ = sv.ChangeView(sv.ScrollableWidth, null, null, true);
+					//return;
+				}
+				if (_scrollTestHorizontalScrollIsReady && _scrollTestVerticalScrollIsReady && sv.VerticalOffset > 0)
+				{
+					VerticalOffsetAfterScrollTest = sv.VerticalOffset;
+					UpdateTestsPassedFailedValues(noMarginAndNoPadding, sv);
+					_ = sv.ChangeView(0, 0, null, true);
+					return;
+				}
+				_scrollTestComplete = true;
+				_scrollTestIsRunning = false;
+			}
+		}
+
+		private void UpdateData(ScrollViewer sv)
+		{
+			var numberOfDigitsForRounding = _numberOfDigitsForRounding;
+			var svContent = sv.Content as FrameworkElement;
+			ScrollViewerName = sv.Name;
+			ContentMargin = svContent?.Margin ?? default;
+			ScrollViewerPadding = sv.Padding;
+
+			ContentActualHeight = $"Content ActualHeight: {(svContent?.ActualHeight ?? double.NaN).ToString(_dblFormat, _cultureInfo)}";
+			ContentActualHeightValue = Math.Round(svContent?.ActualHeight ?? double.NaN, numberOfDigitsForRounding);
+
+			ContentActualWidth = $"Content ActualWidth: {(svContent?.ActualWidth ?? double.NaN).ToString(_dblFormat, _cultureInfo)}";
+			ContentActualWidthValue = Math.Round(svContent?.ActualWidth ?? double.NaN, numberOfDigitsForRounding);
+
+			SVActualHeight = $"ScrollViewer ActualHeight: {sv.ActualHeight.ToString(_dblFormat, _cultureInfo)}";
+			SVActualHeightValue = Math.Round(sv.ActualHeight, numberOfDigitsForRounding);
+
+			SVActualWidth = $"ScrollViewer ActualWidth: {sv.ActualWidth.ToString(_dblFormat, _cultureInfo)}";
+			SVActualWidthValue = Math.Round(sv.ActualWidth, numberOfDigitsForRounding);
+
+			ExtentHeight = $"ExtentHeight: {sv.ExtentHeight.ToString(_dblFormat, _cultureInfo)}";
+			ExtentHeightValue = Math.Round(sv.ExtentHeight, numberOfDigitsForRounding);
+
+			ExtentWidth = $"ExtentWidth: {sv.ExtentWidth.ToString(_dblFormat, _cultureInfo)}";
+			ExtentWidthValue = Math.Round(sv.ExtentWidth, numberOfDigitsForRounding);
+
+			ViewportHeight = $"ViewportHeight: {sv.ViewportHeight.ToString(_dblFormat, _cultureInfo)}";
+			ViewportHeightValue = Math.Round(sv.ViewportHeight, numberOfDigitsForRounding);
+
+			ViewportWidth = $"ViewportWidth: {sv.ViewportWidth.ToString(_dblFormat, _cultureInfo)}";
+			ViewportWidthValue = Math.Round(sv.ViewportWidth, numberOfDigitsForRounding);
+
+			ScrollableHeight = $"ScrollableHeight: {sv.ScrollableHeight.ToString(_dblFormat, _cultureInfo)}";
+			ScrollableHeightValue = Math.Round(sv.ScrollableHeight, numberOfDigitsForRounding);
+
+			ScrollableWidth = $"ScrollableWidth: {sv.ScrollableWidth.ToString(_dblFormat, _cultureInfo)}";
+			ScrollableWidthValue = Math.Round(sv.ScrollableWidth, numberOfDigitsForRounding);
+
+			HorizontalOffsetValue = Math.Round(sv.HorizontalOffset, numberOfDigitsForRounding);
+			//HorizontalOffsetAfterScrollTest = Math.Round(horizontalScrollTestResult);
+
+			VerticalOffsetValue = Math.Round(sv.VerticalOffset, numberOfDigitsForRounding);
+			//VerticalOffsetAfterScrollTest = Math.Round(verticalScrollTestResult);
+		}
+
+		public void UpdateTestsPassedFailedValues(ScrollViewer noMarginAndNoPadding, ScrollViewer sv)
+		{
+			UpdateData(sv);
+
+			var numberOfTests = 0;
+			var passedTestsCount = 0;
+			var fallbackDoubleValue = double.NaN;
+			var numberOfDigitsForRounding = _numberOfDigitsForRounding;
+
+			SVActualWidthExpectedDifference = 0;
+			SVActualWidthActualDifference = Math.Round(noMarginAndNoPadding.ActualWidth - SVActualWidthValue, numberOfDigitsForRounding);
+			numberOfTests++;
+			passedTestsCount += TestPassedValue(SVActualWidthExpectedDifference, SVActualWidthActualDifference);
+
+			SVActualHeightExpectedDifference = 0;
+			SVActualHeightActualDifference = Math.Round(noMarginAndNoPadding.ActualHeight - SVActualHeightValue, numberOfDigitsForRounding);
+			numberOfTests++;
+			passedTestsCount += TestPassedValue(SVActualHeightExpectedDifference, SVActualHeightActualDifference);
+
+			ViewportWidthExpectedDifference = ScrollViewerPadding.Left + ScrollViewerPadding.Right;
+			ViewportWidthActualDifference = Math.Round(noMarginAndNoPadding.ViewportWidth - ViewportWidthValue, numberOfDigitsForRounding);
+			numberOfTests++;
+			passedTestsCount += TestPassedValue(ViewportWidthExpectedDifference, ViewportWidthActualDifference);
+
+			ViewportHeightExpectedDifference = ScrollViewerPadding.Top + ScrollViewerPadding.Bottom;
+			ViewportHeightActualDifference = Math.Round(noMarginAndNoPadding.ViewportHeight - ViewportHeightValue, numberOfDigitsForRounding);
+			numberOfTests++;
+			passedTestsCount += TestPassedValue(ViewportHeightExpectedDifference, ViewportHeightActualDifference);
+
+			ExtentWidthExpectedDifference = -(ContentMargin.Left + ContentMargin.Right);
+			ExtentWidthActualDifference = Math.Round(noMarginAndNoPadding.ExtentWidth - ExtentWidthValue, numberOfDigitsForRounding);
+			numberOfTests++;
+			passedTestsCount += TestPassedValue(ExtentWidthExpectedDifference, ExtentWidthActualDifference);
+
+			ExtentHeightExpectedDifference = -(ContentMargin.Top + ContentMargin.Bottom);
+			ExtentHeightActualDifference = Math.Round(noMarginAndNoPadding.ExtentHeight - ExtentHeightValue, numberOfDigitsForRounding);
+			numberOfTests++;
+			passedTestsCount += TestPassedValue(ExtentHeightExpectedDifference, ExtentHeightActualDifference);
+
+			ContentActualWidthExpectedDifference = 0;
+			var noMarginAndNoPaddingContent = noMarginAndNoPadding.Content as FrameworkElement;
+			ContentActualWidthActualDifference = Math.Round((noMarginAndNoPaddingContent?.ActualWidth ?? fallbackDoubleValue) - ContentActualWidthValue, numberOfDigitsForRounding);
+			numberOfTests++;
+			passedTestsCount += TestPassedValue(ContentActualWidthExpectedDifference, ContentActualWidthActualDifference);
+
+			ContentActualHeightExpectedDifference = 0;
+			ContentActualHeightActualDifference = Math.Round((noMarginAndNoPaddingContent?.ActualHeight ?? fallbackDoubleValue) - ContentActualHeightValue, numberOfDigitsForRounding);
+			numberOfTests++;
+			passedTestsCount += TestPassedValue(ContentActualHeightExpectedDifference, ContentActualHeightActualDifference);
+
+			ScrollableWidthExpectedDifference = -(ContentMargin.Left + ContentMargin.Right + ScrollViewerPadding.Left + ScrollViewerPadding.Right);
+			ScrollableWidthActualDifference = Math.Round(noMarginAndNoPadding.ScrollableWidth - ScrollableWidthValue, numberOfDigitsForRounding);
+			numberOfTests++;
+			passedTestsCount += TestPassedValue(ScrollableWidthExpectedDifference, ScrollableWidthActualDifference);
+
+			ScrollableHeightExpectedDifference = -(ContentMargin.Top + ContentMargin.Bottom + ScrollViewerPadding.Top + ScrollViewerPadding.Bottom);
+			ScrollableHeightActualDifference = Math.Round(noMarginAndNoPadding.ScrollableHeight - ScrollableHeightValue, numberOfDigitsForRounding);
+			numberOfTests++;
+			passedTestsCount += TestPassedValue(ScrollableHeightExpectedDifference, ScrollableHeightActualDifference);
+
+			numberOfTests += 2;
+			passedTestsCount += TestPassedValue(sv.ScrollableWidth, HorizontalOffsetAfterScrollTest);
+			passedTestsCount += TestPassedValue(sv.ScrollableHeight, VerticalOffsetAfterScrollTest);
 			NumberOfTests = numberOfTests;
 			PassedTestsCount = passedTestsCount;
+
 			TestsPassedFailedCountText = $"{passedTestsCount} of {numberOfTests} Tests Passed";
 		}
 
@@ -45,15 +288,15 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 
 		public static string ThicknessAsString(Thickness t) => $"{{ L:{t.Left} T:{t.Top} R:{t.Right} B:{t.Bottom} }}";
 
-		private string _name;
-		public string Name
+		private string _displayName;
+		public string DisplayName
 		{
-			get => _name;
+			get => _displayName;
 			set
 			{
-				if (_name != value)
+				if (_displayName != value)
 				{
-					_name = value;
+					_displayName = value;
 					RaisePropertyChanged();
 				}
 			}
@@ -631,7 +874,6 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			}
 		}
 
-		private const int _numberOfDigitsForRounding = 3;
 		private double _horizontalOffsetValue;
 		public double HorizontalOffsetValue
 		{
