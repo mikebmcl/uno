@@ -37,12 +37,12 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			this.InitializeComponent();
 
 			// Create with three empty entries because we want the data order to match the order of the ScrollViewers
-			NeitherScrollViewerContentExtentData = new ScrollViewerContentExtentData(NeitherDisplayName);
-			ContentMarginScrollViewerContentExtentData = new ScrollViewerContentExtentData(ContentMarginDisplayName);
-			SVPaddingScrollViewerContentExtentData = new ScrollViewerContentExtentData(SVPaddingDisplayName);
-			BothScrollViewerContentExtentData = new ScrollViewerContentExtentData(BothDisplayName);
+			NeitherScrollViewerContentExtentData = new ScrollViewerContentExtentDataViewModel(NeitherDisplayName);
+			ContentMarginScrollViewerContentExtentData = new ScrollViewerContentExtentDataViewModel(ContentMarginDisplayName);
+			SVPaddingScrollViewerContentExtentData = new ScrollViewerContentExtentDataViewModel(SVPaddingDisplayName);
+			BothScrollViewerContentExtentData = new ScrollViewerContentExtentDataViewModel(BothDisplayName);
 
-			ScrollViewerData = new ObservableCollection<ScrollViewerContentExtentData>(new ScrollViewerContentExtentData[] { ContentMarginScrollViewerContentExtentData, SVPaddingScrollViewerContentExtentData, BothScrollViewerContentExtentData });
+			ScrollViewerData = new ObservableCollection<ScrollViewerContentExtentDataViewModel>(new ScrollViewerContentExtentDataViewModel[] { ContentMarginScrollViewerContentExtentData, SVPaddingScrollViewerContentExtentData, BothScrollViewerContentExtentData });
 
 			NeitherStackPanel.SizeChanged += NeitherStackPanel_SizeChanged;
 			NeitherScrollViewer.SizeChanged += NeitherScrollViewer_SizeChanged;
@@ -161,15 +161,15 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			}
 		}
 
-		public ObservableCollection<ScrollViewerContentExtentData> ScrollViewerData { get; set; }
+		public ObservableCollection<ScrollViewerContentExtentDataViewModel> ScrollViewerData { get; set; }
 
 		public string NeitherDisplayName => "No Padding and No Content Margin";
 		public string SVPaddingDisplayName => "ScrollViewer Padding";
 		public string ContentMarginDisplayName => "Content Margin";
 		public string BothDisplayName => "Padding and Content Margin";
 
-		private ScrollViewerContentExtentData _neitherScrollViewerContentExtentData;
-		public ScrollViewerContentExtentData NeitherScrollViewerContentExtentData
+		private ScrollViewerContentExtentDataViewModel _neitherScrollViewerContentExtentData;
+		public ScrollViewerContentExtentDataViewModel NeitherScrollViewerContentExtentData
 		{
 			get => _neitherScrollViewerContentExtentData;
 			set
@@ -182,8 +182,8 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			}
 		}
 
-		private ScrollViewerContentExtentData _contentMarginScrollViewerContentExtentData;
-		public ScrollViewerContentExtentData ContentMarginScrollViewerContentExtentData
+		private ScrollViewerContentExtentDataViewModel _contentMarginScrollViewerContentExtentData;
+		public ScrollViewerContentExtentDataViewModel ContentMarginScrollViewerContentExtentData
 		{
 			get => _contentMarginScrollViewerContentExtentData;
 			set
@@ -196,8 +196,8 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			}
 		}
 
-		private ScrollViewerContentExtentData _svPaddingScrollViewerContentExtentData;
-		public ScrollViewerContentExtentData SVPaddingScrollViewerContentExtentData
+		private ScrollViewerContentExtentDataViewModel _svPaddingScrollViewerContentExtentData;
+		public ScrollViewerContentExtentDataViewModel SVPaddingScrollViewerContentExtentData
 		{
 			get => _svPaddingScrollViewerContentExtentData;
 			set
@@ -210,8 +210,8 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			}
 		}
 
-		private ScrollViewerContentExtentData _bothScrollViewerContentExtentData;
-		public ScrollViewerContentExtentData BothScrollViewerContentExtentData
+		private ScrollViewerContentExtentDataViewModel _bothScrollViewerContentExtentData;
+		public ScrollViewerContentExtentDataViewModel BothScrollViewerContentExtentData
 		{
 			get => _bothScrollViewerContentExtentData;
 			set

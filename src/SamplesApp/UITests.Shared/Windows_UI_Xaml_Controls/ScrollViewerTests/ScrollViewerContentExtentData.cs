@@ -10,9 +10,9 @@ using Windows.UI.Xaml.Controls;
 namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 {
 	[Windows.UI.Xaml.Data.Bindable]
-	public class ScrollViewerContentExtentData : BindableBase
+	public class ScrollViewerContentExtentDataViewModel : BindableBase
 	{
-		public ScrollViewerContentExtentData(string displayName)
+		public ScrollViewerContentExtentDataViewModel(string displayName)
 		{
 			DisplayName = displayName;
 		}
