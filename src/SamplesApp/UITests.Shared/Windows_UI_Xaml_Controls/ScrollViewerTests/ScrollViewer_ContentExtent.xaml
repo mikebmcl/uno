@@ -283,7 +283,7 @@
                            Grid.Column="0"
                            FontWeight="Bold"
                            Margin="4" />
-				<TextBlock Text="{x:Bind local:ScrollViewerContentExtentData.ThicknessAsString(NeitherScrollViewerContentExtentData.ScrollViewerPadding)}"
+				<TextBlock Text="{x:Bind local:ScrollViewerContentExtentDataViewModel.ThicknessAsString(NeitherScrollViewerContentExtentData.ScrollViewerPadding)}"
                            Grid.Row="1"
                            Grid.Column="1"
                            Margin="4" />
@@ -293,7 +293,7 @@
                            Grid.Column="0"
                            FontWeight="Bold"
                            Margin="4" />
-				<TextBlock Text="{x:Bind local:ScrollViewerContentExtentData.ThicknessAsString(NeitherScrollViewerContentExtentData.ContentMargin)}"
+				<TextBlock Text="{x:Bind local:ScrollViewerContentExtentDataViewModel.ThicknessAsString(NeitherScrollViewerContentExtentData.ContentMargin)}"
                            Grid.Row="2"
                            Grid.Column="1"
                            Margin="4" />
@@ -489,7 +489,7 @@
 					</ItemsPanelTemplate>
 				</ItemsControl.ItemsPanel>
 				<ItemsControl.ItemTemplate>
-					<DataTemplate x:DataType="local:ScrollViewerContentExtentData">
+					<DataTemplate x:DataType="local:ScrollViewerContentExtentDataViewModel">
 						<Grid BorderBrush="Gray"
                                   BorderThickness="1"
                                   Margin="4">
@@ -581,7 +581,7 @@
                                        Grid.Column="0"
                                        FontWeight="Bold"
                                        Margin="4" />
-							<TextBlock Text="{x:Bind local:ScrollViewerContentExtentData.ThicknessAsString(ScrollViewerPadding)}"
+							<TextBlock Text="{x:Bind local:ScrollViewerContentExtentDataViewModel.ThicknessAsString(ScrollViewerPadding)}"
                                        Grid.Row="1"
                                        Grid.Column="1"
                                        Margin="4" />
@@ -590,7 +590,7 @@
                                        Grid.Column="0"
                                        FontWeight="Bold"
                                        Margin="4" />
-							<TextBlock Text="{x:Bind local:ScrollViewerContentExtentData.ThicknessAsString(ContentMargin)}"
+							<TextBlock Text="{x:Bind local:ScrollViewerContentExtentDataViewModel.ThicknessAsString(ContentMargin)}"
                                        Grid.Row="2"
                                        Grid.Column="1"
                                        Margin="4" />
