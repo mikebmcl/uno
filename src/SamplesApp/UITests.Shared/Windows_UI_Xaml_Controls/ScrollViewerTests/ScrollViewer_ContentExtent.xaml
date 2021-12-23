@@ -272,7 +272,7 @@
 					<RowDefinition Height="*" />
 					<RowDefinition Height="Auto" />
 				</Grid.RowDefinitions>
-				<TextBlock Text="{x:Bind NeitherScrollViewerContentExtentData.Name}"
+				<TextBlock Text="{x:Bind NeitherScrollViewerContentExtentData.DisplayName}"
                            Grid.Row="0"
                            Grid.Column="0"
                            Grid.ColumnSpan="3"
@@ -569,7 +569,7 @@
                                        Grid.Row="0"
                                        Grid.Column="0"
                                        Grid.ColumnSpan="3">
-								<TextBlock Text="{x:Bind Name}"
+								<TextBlock Text="{x:Bind DisplayName}"
 										   Style="{StaticResource LocalHeaderTextBlockStyle}" />
 								<TextBlock Text="{x:Bind TestsPassedFailedCountText}"
 										   Style="{StaticResource LocalHeaderTextBlockStyle}" />
@@ -590,7 +590,7 @@
                                        Grid.Column="0"
                                        FontWeight="Bold"
                                        Margin="4" />
-							<TextBlock Text="{x:Bind local:ScrollViewerContentExtentData.ThicknessAsString(ContentMargin))}"
+							<TextBlock Text="{x:Bind local:ScrollViewerContentExtentData.ThicknessAsString(ContentMargin)}"
                                        Grid.Row="2"
                                        Grid.Column="1"
                                        Margin="4" />
