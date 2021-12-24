@@ -50,9 +50,6 @@
 					  HorizontalScrollBarVisibility="{x:Bind HorizontalScrollBarVisibility}"
 					  BorderBrush="Navy"
 					  BorderThickness="{x:Bind ScrollViewerBorderThickness}"
-					  x:Name="NeitherScrollViewer"
-					  BorderBrush="Navy"
-					  BorderThickness="{x:Bind ScrollViewerBorderThickness}"
 					  Background="Pink"
 					  Margin="8"
 					  Grid.Row="0">
