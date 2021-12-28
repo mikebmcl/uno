@@ -104,7 +104,7 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 		}
 
 		public string ScrollViewerPaddingName => nameof(ScrollViewerPadding);
-		private Thickness _scrollViewerPadding = new Thickness(16);
+		private Thickness _scrollViewerPadding = new Thickness(4, 6, 11, 13);
 		public Thickness ScrollViewerPadding
 		{
 			get => _scrollViewerPadding;
@@ -119,7 +119,7 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 		}
 
 		public string ContentMarginName => nameof(ContentMargin);
-		private Thickness _contentMargin = new Thickness(10);
+		private Thickness _contentMargin = new Thickness(19, 23, 26, 32);
 		public Thickness ContentMargin
 		{
 			get => _contentMargin;

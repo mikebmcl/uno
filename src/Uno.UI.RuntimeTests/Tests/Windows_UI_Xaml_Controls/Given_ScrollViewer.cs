@@ -232,15 +232,15 @@ namespace Uno.UI.RuntimeTests.Tests.Windows_UI_Xaml_Controls
 			// Allow up to a 1 pixel difference to account for minor differences due to floating point-based rendering calculations on various platforms.
 			const double maximumValidDifference = 1;
 
-			// 10 and 16 are arbitrary but are chosen because they will not combine into values that make it difficult to discern the source of an error.
-			var contentMargin = new Thickness(10);
-			var svPadding = new Thickness(16);
+			// The values are slightly arbitrary but are chosen because they are significantly larger than the maximum valid difference and will not combine into values that make it difficult in the event of an error to discern the exact source value(s) while also ending up with a combined L+R of both and T+B of both that is substantively smaller than the width/height we're using. 
+			var contentMargin = new Thickness(19, 23, 26, 32);
+			var svPadding = new Thickness(4, 6, 11, 13);
 
 			// The first test is to ensure that the calculated values for given, givenContent, sut, and sutContent in VerifyExpectedDifferences are equal because the remaining three tests would otherwise be invalid.
-			await VerifyExpectedDifferences("No padding and No Content Margin", default, default);
-			await VerifyExpectedDifferences("Has Content Margin", default, contentMargin);
-			await VerifyExpectedDifferences("Has Padding", svPadding, default);
-			await VerifyExpectedDifferences("Has Both Padding and Content Margin", svPadding, contentMargin);
+			await VerifyExpectedDifferences("No Padding and No Content Margin", default, default);
+			await VerifyExpectedDifferences($"Has Content Margin [{contentMargin.Left},{contentMargin.Top},{contentMargin.Right},{contentMargin.Bottom}]", default, contentMargin);
+			await VerifyExpectedDifferences($"Has ScrollViewer Padding [{svPadding.Left},{svPadding.Top},{svPadding.Right},{svPadding.Bottom}]", svPadding, default);
+			await VerifyExpectedDifferences($"Has Both ScrollViewer Padding [{svPadding.Left},{svPadding.Top},{svPadding.Right},{svPadding.Bottom}] and Content Margin [{contentMargin.Left},{contentMargin.Top},{contentMargin.Right},{contentMargin.Bottom}]", svPadding, contentMargin);
 
 			async Task VerifyExpectedDifferences(string name, Thickness svPadding, Thickness contentMargin)
 			{
@@ -286,6 +286,32 @@ namespace Uno.UI.RuntimeTests.Tests.Windows_UI_Xaml_Controls
 				await WindowHelper.WaitForLoaded(sutContent);
 				await WindowHelper.WaitForIdle();
 
+				sut.ActualWidth.Should().BeApproximately(given.ActualWidth, maximumValidDifference, $"{nameof(ScrollViewer)} {nameof(sut.ActualWidth)} should be approximately equal to {given.ActualWidth}");
+				sut.ActualHeight.Should().BeApproximately(given.ActualHeight, maximumValidDifference, $"{nameof(ScrollViewer)} {nameof(sut.ActualHeight)} should be approximately equal to {given.ActualHeight}");
+				sut.RenderSize.Width.Should().BeApproximately(given.RenderSize.Width, maximumValidDifference, $"{nameof(ScrollViewer)} {nameof(sut.RenderSize)}.{nameof(sut.RenderSize.Width)} should be approximately equal to {given.RenderSize.Width}");
+				sut.RenderSize.Height.Should().BeApproximately(given.RenderSize.Height, maximumValidDifference, $"{nameof(ScrollViewer)} {nameof(sut.RenderSize)}.{nameof(sut.RenderSize.Height)} should be approximately equal to {given.RenderSize.Height}");
+
+				var expectedWidthDifference = svPadding.Left + svPadding.Right;
+				var expectedHeightDifference = svPadding.Top + svPadding.Bottom;
+				sut.ViewportWidth.Should().BeApproximately(given.ViewportWidth - expectedWidthDifference, maximumValidDifference, $"{nameof(ScrollViewer)} {nameof(sut.ViewportWidth)} should be {given.ViewportWidth} reduced by {nameof(ScrollViewer)}.{nameof(sut.Padding)} Left + Right {expectedWidthDifference}");
+				sut.ViewportHeight.Should().BeApproximately(given.ViewportHeight - expectedHeightDifference, maximumValidDifference, $"{nameof(ScrollViewer)} {nameof(sut.ViewportHeight)} should be {given.ViewportHeight} reduced by {nameof(ScrollViewer)}.{nameof(sut.Padding)} Top + Bottom {expectedHeightDifference}");
+
+				expectedWidthDifference = contentMargin.Left + contentMargin.Right;
+				expectedHeightDifference = contentMargin.Top + contentMargin.Bottom;
+				sut.ExtentWidth.Should().BeApproximately(given.ExtentWidth + expectedWidthDifference, maximumValidDifference, $"{nameof(sut.ExtentWidth)} should be approximately {given.ExtentWidth} increased by Content.Margin Left + Right value {Math.Abs(expectedWidthDifference)}");
+				sut.ExtentHeight.Should().BeApproximately(given.ExtentHeight + expectedHeightDifference, maximumValidDifference, $"{nameof(sut.ExtentHeight)} should be approximately {given.ExtentHeight} increased by Content.Margin Top + Bottom value {Math.Abs(expectedHeightDifference)}");
+
+				sutContent.ActualWidth.Should().BeApproximately(givenContent.ActualWidth, maximumValidDifference, $"Content ActualWidth {sutContent.ActualWidth} should be approximately equal to {givenContent.ActualWidth}");
+				sutContent.ActualHeight.Should().BeApproximately(givenContent.ActualHeight, maximumValidDifference, $"Content ActualHeight {sutContent.ActualHeight} should be approximately equal to {givenContent.ActualHeight}");
+
+				sutContent.RenderSize.Width.Should().BeApproximately(givenContent.RenderSize.Width, maximumValidDifference, $"Content {nameof(sutContent.RenderSize)}.{nameof(sutContent.RenderSize.Width)} {sutContent.RenderSize.Width} should be approximately equal to {givenContent.RenderSize.Width}");
+				sutContent.RenderSize.Height.Should().BeApproximately(givenContent.RenderSize.Height, maximumValidDifference, $"Content {nameof(sutContent.RenderSize)}.{nameof(sutContent.RenderSize.Height)} {sutContent.RenderSize.Height} should be approximately equal to {givenContent.RenderSize.Height}");
+
+				expectedWidthDifference = contentMargin.Left + contentMargin.Right + svPadding.Left + svPadding.Right;
+				expectedHeightDifference = contentMargin.Top + contentMargin.Bottom + svPadding.Top + svPadding.Bottom;
+				sut.ScrollableWidth.Should().BeApproximately(given.ScrollableWidth + expectedWidthDifference, maximumValidDifference, $"{nameof(sut.ScrollableWidth)} should be approximately {given.ScrollableWidth} increased by Content.Margin Left + Right + ScrollViewer.Padding Left + Right {Math.Abs(expectedWidthDifference)}");
+				sut.ScrollableHeight.Should().BeApproximately(given.ScrollableHeight + expectedHeightDifference, maximumValidDifference, $"{nameof(sut.ScrollableHeight)} should be approximately {given.ScrollableHeight} increased by Content.Margin Top + Bottom + ScrollViewer.Padding Top + Bottom {Math.Abs(expectedHeightDifference)}");
+
 				var viewChanged = false;
 				void OnViewChanged(object __, ScrollViewerViewChangedEventArgs ___)
 				{
@@ -293,66 +319,36 @@ namespace Uno.UI.RuntimeTests.Tests.Windows_UI_Xaml_Controls
 					viewChanged = true;
 				}
 
+				// WASM bug check: When scrolling all the way to the ScrollableWidth then all the way to the ScrollableHeight (trying to do both in one call will result in false values being reported), the scroll to ScrollableHeight should leave HorizontalOffset approximately equal to ScrollableWidth. Scrolling in the reverse order should leave VerticalOffset approximately equal to ScrollableHeight. 
 				sut.ViewChanged += OnViewChanged;
+				// Only do a horizontal scroll halfway so that second horizontal scroll call, which scrolls all the way, will result in ViewChanged event firing.
 				var scrollTo = sut.ScrollableWidth / 2;
+				var firstHorizontalScroll = scrollTo;
 				sut.ChangeView(scrollTo, null, null, true);
 				await WindowHelper.WaitForIdle();
-				//await WindowHelper.WaitFor(() => sut.HorizontalOffset > 0, 1000, message: $"Waiting for {nameof(sut.HorizontalOffset)} to change from 0.");
-				await WindowHelper.WaitFor(() => viewChanged, 1000, message: $"{nameof(sut)}.HorizontalOffset change to {scrollTo}");
-				sut.HorizontalOffset.Should().BeGreaterThan(0, $"Checking sut.ChangeView({scrollTo}, null, null, true) call");
+				await WindowHelper.WaitFor(() => viewChanged, 1000, message: $"{nameof(sut)}.{nameof(sut.ChangeView)}({scrollTo}, null, null, true) call (first horizontal)");
+				sut.HorizontalOffset.Should().BeGreaterThan(0, $"{nameof(sut.HorizontalOffset)} {sut.HorizontalOffset} should be greater than 0");
 
 				viewChanged = false;
 				sut.ViewChanged += OnViewChanged;
 				scrollTo = sut.ScrollableHeight;
 				sut.ChangeView(null, scrollTo, null, true);
 				await WindowHelper.WaitForIdle();
-				//await WindowHelper.WaitFor(() => sut.VerticalOffset > 0, 1000, message: $"Waiting for {nameof(sut.VerticalOffset)} to change from 0.");
-				await WindowHelper.WaitFor(() => viewChanged, 1000, message: $"{nameof(sut)}.{nameof(sut.VerticalOffset)} change to {scrollTo}");
-				sut.VerticalOffset.Should().BeGreaterThan(0, $"Checking sut.ChangeView({scrollTo}, null, null, true) call");
+				await WindowHelper.WaitFor(() => viewChanged, 1000, message: $"{nameof(sut)}.{nameof(sut.ChangeView)}(null, {scrollTo}, null, true) call (vertical)");
+				sut.VerticalOffset.Should().BeGreaterThan(0, $"{nameof(sut.VerticalOffset)} value {sut.VerticalOffset} should be greater than 0");
 
 				viewChanged = false;
 				sut.ViewChanged += OnViewChanged;
 				scrollTo = sut.ScrollableWidth;
 				sut.ChangeView(scrollTo, null, null, true);
 				await WindowHelper.WaitForIdle();
-				var horizontalOffsetCheck = Math.Min(sut.ScrollableWidth / 2 + 1, sut.ScrollableWidth);
-				await WindowHelper.WaitFor(() => viewChanged, 1000, message: $"{nameof(sut)}.HorizontalOffset change to {scrollTo}");
-				sut.HorizontalOffset.Should().BeGreaterOrEqualTo(horizontalOffsetCheck, $"Checking sut.ChangeView({scrollTo}, null, null, true) call");
-				//await WindowHelper.WaitFor(() => sut.HorizontalOffset >= horizontalOffsetCheck, 1000, message: $"Waiting for {nameof(sut.HorizontalOffset)} to change to be greater that or equal to {horizontalOffsetCheck}.");
+				await WindowHelper.WaitFor(() => viewChanged, 1000, message: $"{nameof(sut)}.{nameof(sut.ChangeView)}({scrollTo}, null, null, true) call (second horizontal)");
+				var horizontalOffsetCheck = Math.Min(firstHorizontalScroll + 1, sut.ScrollableWidth);
+				sut.HorizontalOffset.Should().BeGreaterOrEqualTo(horizontalOffsetCheck, $"{nameof(sut.HorizontalOffset)} value {sut.HorizontalOffset} should be greater than or equal to {horizontalOffsetCheck}");
 
-				sut.ActualWidth.Should().Be(given.ActualWidth, $"ScrollViewer ActualWidth should be exactly equal to {nameof(given)}");
-				sut.ActualHeight.Should().Be(given.ActualHeight, $"ScrollViewer ActualHeight should be exactly equal to {nameof(given)}");
-				sut.RenderSize.Width.Should().Be(given.RenderSize.Width, $"ScrollViewer RenderSize.Width should be exactly equal to {nameof(given)}");
-				sut.RenderSize.Height.Should().Be(given.RenderSize.Height, $"ScrollViewer RenderSize.Height should be exactly equal to {nameof(given)}");
+				sut.HorizontalOffset.Should().BeApproximately(sut.ScrollableWidth, maximumValidDifference, $"{nameof(sut.HorizontalOffset)} when scrolled all the way should be approximately the {nameof(sut.ScrollableWidth)} value {sut.ScrollableWidth}");
+				sut.VerticalOffset.Should().BeApproximately(sut.ScrollableHeight, maximumValidDifference, $"{nameof(sut.VerticalOffset)} when scrolled all the way should be approximately the {nameof(sut.ScrollableHeight)} value {sut.ScrollableHeight}");
 
-				var expectedWidthDifference = svPadding.Left + svPadding.Right;
-				var expectedHeightDifference = svPadding.Top + svPadding.Bottom;
-				//#if !NETFX_CORE
-				sut.ViewportWidth.Should().BeApproximately(given.ViewportWidth - expectedWidthDifference, maximumValidDifference, $"Viewport.Width should be the {nameof(given)} value {given.ViewportWidth} reduced by ScrollViewer.Padding Left + Right {expectedWidthDifference}");
-				sut.ViewportWidth.Should().BeApproximately(given.ViewportHeight - expectedHeightDifference, maximumValidDifference, $"Viewport.Width should be the {nameof(given)} value {given.ViewportHeight} reduced by ScrollViewer.Padding Top + Bottom {expectedHeightDifference}");
-				//#endif
-
-				expectedWidthDifference = contentMargin.Left + contentMargin.Right;
-				expectedHeightDifference = contentMargin.Top + contentMargin.Bottom;
-				sut.ExtentWidth.Should().BeApproximately(given.ExtentWidth + expectedWidthDifference, maximumValidDifference, $"Extent.Width should be the {nameof(given)} value {given.ExtentWidth} increased by Content.Margin Left + Right {Math.Abs(expectedWidthDifference)}");
-				sut.ExtentHeight.Should().BeApproximately(given.ExtentHeight + expectedHeightDifference, maximumValidDifference, $"Viewport.Width should be the {nameof(given)} value {given.ExtentHeight} increaded by Content.Margin Top + Bottom {Math.Abs(expectedHeightDifference)}");
-
-				sutContent.ActualWidth.Should().Be(givenContent.ActualWidth, $"Content ActualWidth {sutContent.ActualWidth} should be exactly equal to {nameof(given)} value {given.ActualWidth}");
-				sutContent.ActualHeight.Should().Be(givenContent.ActualHeight, $"Content ActualHeight {sutContent.ActualHeight} should be exactly equal to {nameof(given)} value {given.ActualHeight}");
-
-				sutContent.RenderSize.Width.Should().Be(givenContent.RenderSize.Width, $"Content RenderSize.Width {sutContent.RenderSize.Width} should be exactly equal to {nameof(given)} value {givenContent.RenderSize.Width}");
-				sutContent.RenderSize.Height.Should().Be(givenContent.RenderSize.Height, $"Content RenderSize.Height {sutContent.RenderSize.Height} should be exactly equal to {nameof(given)} value {givenContent.RenderSize.Height}");
-
-				expectedWidthDifference = contentMargin.Left + contentMargin.Right + svPadding.Left + svPadding.Right;
-				expectedHeightDifference = contentMargin.Top + contentMargin.Bottom + svPadding.Top + svPadding.Bottom;
-				sut.ScrollableWidth.Should().BeApproximately(given.ScrollableWidth + expectedWidthDifference, maximumValidDifference, $"ScrollableWidth should be the {nameof(given)} value {given.ScrollableWidth} increased by Content.Margin Left + Right ScrollViewer.Padding Left + Right {Math.Abs(expectedWidthDifference)}");
-				sut.ScrollableHeight.Should().BeApproximately(given.ScrollableHeight + expectedHeightDifference, maximumValidDifference, $"ScrollableHeight should be the {nameof(given)} value {given.ScrollableHeight} increaded by Content.Margin Top + Bottom + ScrollViewer.Padding Top + Bottom {Math.Abs(expectedHeightDifference)}");
-
-				sut.HorizontalOffset.Should().BeApproximately(sut.ScrollableWidth, maximumValidDifference, $"HorizontalOffset should be {nameof(sut.ScrollableWidth)} value {sut.ScrollableWidth}");
-				sut.VerticalOffset.Should().BeApproximately(sut.ScrollableHeight, maximumValidDifference, $"VerticalOffset should be {nameof(sut.ScrollableHeight)} value {sut.ScrollableHeight}");
-				sut.ChangeView(0, 0, null, true);
-				await WindowHelper.WaitFor(() => sut.HorizontalOffset == 0, 1000, $"Waiting for {nameof(sut.HorizontalOffset)} to change to 0.");
-				await WindowHelper.WaitFor(() => sut.VerticalOffset == 0, 1000, $"Waiting for {nameof(sut.VerticalOffset)} to change to 0.");
 			}
 		}
 	}
