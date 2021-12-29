@@ -44,6 +44,7 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 
 			ScrollViewerData = new ObservableCollection<ScrollViewerContentExtentDataViewModel>(new ScrollViewerContentExtentDataViewModel[] { ContentMarginScrollViewerContentExtentData, SVPaddingScrollViewerContentExtentData, BothScrollViewerContentExtentData });
 
+			SizeChanged += ScrollViewer_ContentExtent_SizeChanged;
 			NeitherStackPanel.SizeChanged += NeitherStackPanel_SizeChanged;
 			NeitherScrollViewer.SizeChanged += NeitherScrollViewer_SizeChanged;
 			ContentMarginStackPanel.SizeChanged += ContentMarginStackPanel_SizeChanged;
@@ -351,16 +352,38 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			}
 		}
 
-		private void NeitherStackPanel_SizeChanged(object sender, SizeChangedEventArgs e)
+		private void UpdateForNeither()
 		{
 			NeitherScrollViewerContentExtentData.UpdateTestsPassedFailedValues(NeitherScrollViewer, NeitherScrollViewer);
 			NeitherScrollViewerContentExtentData.BeginScrollTest(NeitherScrollViewer);
+
+			ContentMarginScrollViewerContentExtentData.UpdateTestsPassedFailedValues(NeitherScrollViewer, ContentMarginScrollViewer);
+			ContentMarginScrollViewerContentExtentData.BeginScrollTest(ContentMarginScrollViewer);
+
+			SVPaddingScrollViewerContentExtentData.UpdateTestsPassedFailedValues(NeitherScrollViewer, SVPaddingScrollViewer);
+			SVPaddingScrollViewerContentExtentData.BeginScrollTest(SVPaddingScrollViewer);
+
+			BothScrollViewerContentExtentData.UpdateTestsPassedFailedValues(NeitherScrollViewer, BothScrollViewer);
+			BothScrollViewerContentExtentData.BeginScrollTest(BothScrollViewer);
+		}
+
+		private void ScrollViewer_ContentExtent_SizeChanged(object sender, SizeChangedEventArgs args)
+		{
+			NeitherScrollViewer.LayoutUpdated += NeitherScrollViewer_LayoutUpdated;
+			ContentMarginScrollViewer.LayoutUpdated += ContentMarginScrollViewer_LayoutUpdated;
+			SVPaddingScrollViewer.LayoutUpdated += SVPaddingScrollViewer_LayoutUpdated;
+			BothScrollViewer.LayoutUpdated += BothScrollViewer_LayoutUpdated;
+			UpdateForNeither();
+		}
+
+		private void NeitherStackPanel_SizeChanged(object sender, SizeChangedEventArgs e)
+		{
+			UpdateForNeither();
 		}
 
 		private void NeitherScrollViewer_SizeChanged(object sender, SizeChangedEventArgs e)
 		{
-			NeitherScrollViewerContentExtentData.UpdateTestsPassedFailedValues(NeitherScrollViewer, NeitherScrollViewer);
-			NeitherScrollViewerContentExtentData.BeginScrollTest(NeitherScrollViewer);
+			UpdateForNeither();
 		}
 
 		private void ContentMarginStackPanel_SizeChanged(object sender, SizeChangedEventArgs e)
