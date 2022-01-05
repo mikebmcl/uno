@@ -712,9 +712,10 @@ namespace Windows.UI.Xaml.Controls
 			else if (Content is FrameworkElement fe)
 			{
 				var explicitHeight = fe.Height;
+				var extentHeightAdjustment = fe.Margin.Top + fe.Margin.Bottom;
 				if (explicitHeight.IsFinite())
 				{
-					ExtentHeight = explicitHeight;
+					ExtentHeight = explicitHeight + extentHeightAdjustment;
 				}
 				else
 				{
@@ -722,13 +723,14 @@ namespace Windows.UI.Xaml.Controls
 						fe.ActualHeight > 0 &&
 						fe.VerticalAlignment == VerticalAlignment.Stretch;
 
-					ExtentHeight = canUseActualHeightAsExtent ? fe.ActualHeight : fe.DesiredSize.Height;
+					ExtentHeight = canUseActualHeightAsExtent ? fe.ActualHeight + extentHeightAdjustment : fe.DesiredSize.Height + extentHeightAdjustment;
 				}
 
 				var explicitWidth = fe.Width;
+				var extentWidthAdjustment = fe.Margin.Left + fe.Margin.Right;
 				if (explicitWidth.IsFinite())
 				{
-					ExtentWidth = explicitWidth;
+					ExtentWidth = explicitWidth + extentWidthAdjustment;
 				}
 				else
 				{
@@ -736,7 +738,7 @@ namespace Windows.UI.Xaml.Controls
 						fe.ActualWidth > 0 &&
 						fe.HorizontalAlignment == HorizontalAlignment.Stretch;
 
-					ExtentWidth = canUseActualWidthAsExtent ? fe.ActualWidth : fe.DesiredSize.Width;
+					ExtentWidth = canUseActualWidthAsExtent ? fe.ActualWidth + extentWidthAdjustment : fe.DesiredSize.Width + extentWidthAdjustment;
 				}
 			}
 			else

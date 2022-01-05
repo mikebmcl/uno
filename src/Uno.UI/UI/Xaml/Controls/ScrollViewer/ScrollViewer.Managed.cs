@@ -43,7 +43,13 @@ namespace Windows.UI.Xaml.Controls
 			if (_presenter is ContentPresenter presenter && presenter.Content is FrameworkElement presenterContent)
 			{
 				var presenterViewportSize = GetActualExtent(presenter, orientation);
+				presenterViewportSize -= orientation == Orientation.Horizontal ?
+					Padding.Left + Padding.Right :
+					Padding.Top + Padding.Bottom;
 				var contentExtent = GetActualExtent(presenterContent, orientation);
+				contentExtent += orientation == Orientation.Horizontal ?
+					presenterContent.Margin.Left + presenterContent.Margin.Right :
+					presenterContent.Margin.Top + presenterContent.Margin.Bottom;
 				var offset = GetOffsetForOrientation(orientation);
 				var viewportEnd = offset + presenterViewportSize;
 				var overscroll = contentExtent - viewportEnd;
