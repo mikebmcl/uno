@@ -107,6 +107,34 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			}
 		}
 
+		private Thickness _pagePadding;
+		public Thickness PagePadding
+		{
+			get => _pagePadding;
+			set
+			{
+				if (_pagePadding != value)
+				{
+					_pagePadding = value;
+					RaisePropertyChanged();
+				}
+			}
+		}
+
+		private Thickness _scrollViewerMargin = new Thickness(4);
+		public Thickness ScrollViewerMargin
+		{
+			get => _scrollViewerMargin;
+			set
+			{
+				if (_scrollViewerMargin != value)
+				{
+					_scrollViewerMargin = value;
+					RaisePropertyChanged();
+				}
+			}
+		}
+
 		public string ScrollViewerPaddingName => nameof(ScrollViewerPadding);
 		private Thickness _scrollViewerPadding = new Thickness(4, 6, 11, 13);
 		public Thickness ScrollViewerPadding
@@ -137,7 +165,63 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			}
 		}
 
-		private ScrollBarVisibility _verticalScrollBarVisibility = ScrollBarVisibility.Visible;
+		//private void UpdateTestScrollViewersLayouts()
+		//{
+		//	NeitherScrollViewer.UpdateLayout();
+		//	ContentMarginScrollViewer.UpdateLayout();
+		//	SVPaddingScrollViewer.UpdateLayout();
+		//	BothScrollViewer.UpdateLayout();
+		//}
+
+
+		private void ForceSizeChangedUsingScrollViewerMarginAdjustment()
+		{
+			//var svMargin = ScrollViewerMargin;
+			//var adjustment = svMargin.Left > 4 ? -2.0 : 2.0;
+			//UniformThicknessAdjustment(ref svMargin, adjustment);
+			//ScrollViewerMargin = svMargin;
+			PagePadding = PagePadding.Left > 8 ? new Thickness(8) : new Thickness(16);
+			//var svBorderThickness = ScrollViewerBorderThickness;
+			//var contentBorderThickness = ContentBorderThickness;
+
+			//UniformThicknessAdjustment(ref svBorderThickness, 1);
+			//UniformThicknessAdjustment(ref contentBorderThickness, 1);
+			//ScrollViewerBorderThickness = svBorderThickness;
+			//ContentBorderThickness = contentBorderThickness;
+
+			//UniformThicknessAdjustment(ref svBorderThickness, -1);
+			//UniformThicknessAdjustment(ref contentBorderThickness, -1);
+			////ScrollViewerBorderThickness = svBorderThickness;
+			////ContentBorderThickness = contentBorderThickness;
+		}
+
+		private void UniformThicknessAdjustment(ref Thickness thickness, double adjustment)
+		{
+			thickness.Left += adjustment;
+			thickness.Top += adjustment;
+			thickness.Bottom += adjustment;
+			thickness.Right += adjustment;
+		}
+
+		public List<string> ScrollBarVisibilityEnumerators => new List<string>(Enum.GetNames(typeof(ScrollBarVisibility)));
+
+		private string _selectedVerticalScrollBarVisibilityString = Enum.GetName(typeof(ScrollBarVisibility), _verticalScrollBarVisibilityDefaultValue);
+		public string SelectedVerticalScrollBarVisibilityString
+		{
+			get => _selectedVerticalScrollBarVisibilityString;
+			set
+			{
+				if (value != _selectedVerticalScrollBarVisibilityString && Enum.TryParse(value, out ScrollBarVisibility visibility))
+				{
+					_selectedVerticalScrollBarVisibilityString = value;
+					VerticalScrollBarVisibility = visibility;
+					RaisePropertyChanged();
+				}
+			}
+		}
+
+		private const ScrollBarVisibility _verticalScrollBarVisibilityDefaultValue = ScrollBarVisibility.Disabled;
+		private ScrollBarVisibility _verticalScrollBarVisibility = _verticalScrollBarVisibilityDefaultValue;
 		public ScrollBarVisibility VerticalScrollBarVisibility
 		{
 			get => _verticalScrollBarVisibility;
@@ -147,11 +231,27 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 				{
 					_verticalScrollBarVisibility = value;
 					RaisePropertyChanged();
+					ForceSizeChangedUsingScrollViewerMarginAdjustment();
 				}
 			}
 		}
 
-		private ScrollBarVisibility _horizontalScrollBarVisibility = ScrollBarVisibility.Visible;
+		private string _selectedHorizontalScrollBarVisibility = Enum.GetName(typeof(ScrollBarVisibility), _horizontalScrollBarVisibilityDefaultValue);
+		public string SelectedHorizontalScrollBarVisibility
+		{
+			get => _selectedHorizontalScrollBarVisibility;
+			set
+			{
+				if (_selectedHorizontalScrollBarVisibility != value && Enum.TryParse(value, out ScrollBarVisibility visibility))
+				{
+					_selectedHorizontalScrollBarVisibility = value;
+					HorizontalScrollBarVisibility = visibility;
+					RaisePropertyChanged();
+				}
+			}
+		}
+		private const ScrollBarVisibility _horizontalScrollBarVisibilityDefaultValue = ScrollBarVisibility.Disabled;
+		private ScrollBarVisibility _horizontalScrollBarVisibility = _horizontalScrollBarVisibilityDefaultValue;
 		public ScrollBarVisibility HorizontalScrollBarVisibility
 		{
 			get => _horizontalScrollBarVisibility;
@@ -161,6 +261,7 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 				{
 					_horizontalScrollBarVisibility = value;
 					RaisePropertyChanged();
+					ForceSizeChangedUsingScrollViewerMarginAdjustment();
 				}
 			}
 		}

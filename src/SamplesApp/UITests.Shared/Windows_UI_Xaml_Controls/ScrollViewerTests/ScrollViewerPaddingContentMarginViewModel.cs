@@ -6,6 +6,7 @@ using Windows.UI.Xaml;
 using UITests.Shared.Helpers;
 using Windows.UI.Text;
 using Windows.UI.Xaml.Controls;
+using System.Linq;
 
 namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 {
@@ -58,12 +59,93 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 
 		public void BeginScrollTest(ScrollViewer sv)
 		{
+			//var horizontalScrollingEnabled = sv.HorizontalScrollMode != ScrollMode.Disabled && sv.HorizontalScrollBarVisibility != ScrollBarVisibility.Disabled;
+			//var verticalScrollingEnabled = sv.VerticalScrollMode != ScrollMode.Disabled && sv.VerticalScrollBarVisibility != ScrollBarVisibility.Disabled;
+			//var horizontalScrollingEnabled = sv.ScrollableWidth > 0 || (sv.HorizontalScrollMode != ScrollMode.Disabled && sv.HorizontalScrollBarVisibility != ScrollBarVisibility.Disabled);
+			//var verticalScrollingEnabled = sv.ScrollableHeight > 0 || (sv.VerticalScrollMode != ScrollMode.Disabled && sv.VerticalScrollBarVisibility != ScrollBarVisibility.Disabled);
+			var horizontalScrollingEnabled = sv.ScrollableWidth > 0 || (sv.HorizontalScrollMode != ScrollMode.Disabled && sv.HorizontalScrollBarVisibility != ScrollBarVisibility.Disabled);
+			var verticalScrollingEnabled = sv.ScrollableHeight > 0 || (sv.VerticalScrollMode != ScrollMode.Disabled && sv.VerticalScrollBarVisibility != ScrollBarVisibility.Disabled);
+
+			if (horizontalScrollingEnabled && verticalScrollingEnabled)
+			{
+				BeginScrollTestBothEnabled(sv);
+				return;
+			}
+			if (horizontalScrollingEnabled)
+			{
+				BeginScrollTestOnlyHorizontalEnabled(sv);
+				return;
+			}
+			if (verticalScrollingEnabled)
+			{
+				BeginScrollTestOnlyVerticalEnabled(sv);
+				return;
+			}
+		}
+
+		private void BeginScrollTestOnlyHorizontalEnabled(ScrollViewer sv)
+		{
+			var name = sv.Name;
+			ResetScrollTestValues();
+			if (_scrollTestIsRunning)
+			{
+				if (_scrollTestResetRequested && sv.HorizontalOffset > 0)
+				{
+					return;
+				}
+				_scrollTestResetRequested = true;
+				// We don't always get an exact match when the HorizontalOffset is theoretically equal to the ScrollableWidth on Android (maybe other platforms too), so we allow a less than 1 pixel discrepancy rather than checking for exact equality
+				if (Math.Abs(sv.HorizontalOffset - sv.ScrollableWidth) < 1)
+				{
+					_ = sv.ChangeView(0, null, null, true);
+				}
+				else
+				{
+					_scrollTestBegan = true;
+					_ = sv.ChangeView(sv.ScrollableWidth, null, null, true);
+				}
+				return;
+			}
+			_scrollTestIsRunning = true;
+			_scrollTestBegan = true;
+			_ = sv.ChangeView(sv.ScrollableWidth, null, null, true);
+		}
+		private void BeginScrollTestOnlyVerticalEnabled(ScrollViewer sv)
+		{
+			var name = sv.Name;
+			ResetScrollTestValues();
+			if (_scrollTestIsRunning)
+			{
+				if (_scrollTestResetRequested && sv.VerticalOffset > 0)
+				{
+					return;
+				}
+				_scrollTestResetRequested = true;
+				// We don't always get an exact match when the HorizontalOffset is theoretically equal to the ScrollableWidth on Android (maybe other platforms too), so we allow a less than 1 pixel discrepancy rather than checking for exact equality
+				if (Math.Abs(sv.VerticalOffset - sv.ScrollableHeight) < 1)
+				{
+					_ = sv.ChangeView(null, 0, null, true);
+				}
+				else
+				{
+					_scrollTestBegan = true;
+					_ = sv.ChangeView(0, sv.ScrollableHeight, null, true);
+				}
+				return;
+			}
+			_scrollTestIsRunning = true;
+			_scrollTestBegan = true;
+			_ = sv.ChangeView(null, sv.ScrollableHeight, null, true);
+		}
+
+		private void BeginScrollTestBothEnabled(ScrollViewer sv)
+		{
 			var name = sv.Name;
 			var halfScrollableWidth = sv.ScrollableWidth / 2;
 			ResetScrollTestValues();
 			if (_scrollTestIsRunning)
 			{
-				if (_scrollTestResetRequested && (sv.ScrollableWidth == 0 || sv.ScrollableHeight == 0))
+				if (_scrollTestResetRequested && (sv.HorizontalOffset > 0 || sv.VerticalOffset > 0))// && (sv.ScrollableWidth == 0 || sv.ScrollableHeight == 0))
 				{
 					return;
 				}
@@ -87,6 +169,173 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 
 		public void UpdateScrollTest(ScrollViewer noMarginAndNoPadding, ScrollViewer sv)
 		{
+			//var horizontalScrollingEnabled = sv.HorizontalScrollMode != ScrollMode.Disabled && sv.HorizontalScrollBarVisibility != ScrollBarVisibility.Disabled;
+			//var verticalScrollingEnabled = sv.VerticalScrollMode != ScrollMode.Disabled && sv.VerticalScrollBarVisibility != ScrollBarVisibility.Disabled;
+			//var horizontalScrollingEnabled = sv.ScrollableWidth > 0 || (sv.HorizontalScrollMode != ScrollMode.Disabled && sv.HorizontalScrollBarVisibility != ScrollBarVisibility.Disabled);
+			//var verticalScrollingEnabled = sv.ScrollableHeight > 0 || (sv.VerticalScrollMode != ScrollMode.Disabled && sv.VerticalScrollBarVisibility != ScrollBarVisibility.Disabled);
+			var horizontalScrollingEnabled = sv.ScrollableWidth > 0;
+			var verticalScrollingEnabled = sv.ScrollableHeight > 0;
+			if (horizontalScrollingEnabled && verticalScrollingEnabled)
+			{
+				UpdateScrollTestBothEnabled(noMarginAndNoPadding, sv);
+				return;
+			}
+			if (horizontalScrollingEnabled)
+			{
+				UpdateScrollTestOnlyHorizontalEnabled(noMarginAndNoPadding, sv);
+				return;
+			}
+			if (verticalScrollingEnabled)
+			{
+				UpdateScrollTestOnlyVerticalEnabled(noMarginAndNoPadding, sv);
+				return;
+			}
+			ResetScrollTestValues();
+			//System.Diagnostics.Debugger.Break();
+		}
+
+		private void UpdateScrollTestOnlyHorizontalEnabled(ScrollViewer noMarginAndNoPadding, ScrollViewer sv)
+		{
+			var name = sv.Name;
+			//var halfScrollableWidth = sv.ScrollableWidth / 2;
+			if (_scrollTestResetRequested)
+			{
+				ResetScrollTestValues();
+				_scrollTestResetRequested = false;
+				_scrollTestIsRunning = true;
+				if (sv.HorizontalOffset > 0)
+				{
+					_scrollTestBegan = false;
+					_ = sv.ChangeView(0, 0, null, true);
+				}
+				//else
+				//{
+				//	_scrollTestBegan = true;
+				//	_ = sv.ChangeView(halfScrollableWidth, 0, null, true);
+				//}
+				return;
+			}
+			if (_scrollTestIsRunning)
+			{
+				if (!_scrollTestBegan)
+				{
+					if (sv.HorizontalOffset > 0)
+					{
+						ResetScrollTestValues();
+						_ = sv.ChangeView(0, null, null, true);
+					}
+					else
+					{
+						_scrollTestBegan = true;
+						_ = sv.ChangeView(sv.ScrollableWidth, null, null, true);
+					}
+					return;
+				}
+				if (_scrollTestBegan)
+				{
+					HorizontalOffsetAfterScrollTest = sv.HorizontalOffset;
+					_scrollTestComplete = true;
+					//_ = sv.ChangeView(0, 0, null, true);
+					UpdateTestsPassedFailedValues(noMarginAndNoPadding, sv);
+#if DEBUG
+					try
+					{
+						var str = ToString();
+						if (string.IsNullOrEmpty(str))
+						{
+							System.Diagnostics.Debugger.Break();
+							_scrollTestIsRunning = false;
+						}
+						else
+						{
+							_scrollTestIsRunning = false;
+						}
+					}
+					catch (Exception ex)
+					{
+						if (ex.Message != null)
+						{
+							System.Diagnostics.Debugger.Break();
+						}
+					}
+#else
+					_scrollTestIsRunning = false;
+#endif
+					return;
+				}
+			}
+		}
+
+		private void UpdateScrollTestOnlyVerticalEnabled(ScrollViewer noMarginAndNoPadding, ScrollViewer sv)
+		{
+			var name = sv.Name;
+			if (_scrollTestResetRequested)
+			{
+				ResetScrollTestValues();
+				_scrollTestResetRequested = false;
+				_scrollTestIsRunning = true;
+				if (sv.VerticalOffset > 0)
+				{
+					_scrollTestBegan = false;
+					_ = sv.ChangeView(null, 0, null, true);
+				}
+				return;
+			}
+			if (_scrollTestIsRunning)
+			{
+				if (!_scrollTestBegan)
+				{
+					if (sv.VerticalOffset > 0)
+					{
+						ResetScrollTestValues();
+						_ = sv.ChangeView(null, 0, null, true);
+					}
+					else
+					{
+						_scrollTestBegan = true;
+						_ = sv.ChangeView(null, sv.ScrollableHeight, null, true);
+					}
+					return;
+				}
+				if (_scrollTestBegan)
+				{
+					VerticalOffsetAfterScrollTest = sv.VerticalOffset;
+					_scrollTestComplete = true;
+					//_ = sv.ChangeView(0, 0, null, true);
+					UpdateTestsPassedFailedValues(noMarginAndNoPadding, sv);
+#if DEBUG
+					try
+					{
+						var str = ToString();
+						if (string.IsNullOrEmpty(str))
+						{
+							System.Diagnostics.Debugger.Break();
+							_scrollTestIsRunning = false;
+						}
+						else
+						{
+							_scrollTestIsRunning = false;
+						}
+					}
+					catch (Exception ex)
+					{
+						if (ex.Message != null)
+						{
+							System.Diagnostics.Debugger.Break();
+						}
+					}
+#else
+					_scrollTestIsRunning = false;
+#endif
+					return;
+				}
+				//UpdateTestsPassedFailedValues(noMarginAndNoPadding, sv);
+				//_scrollTestIsRunning = false;
+			}
+		}
+
+		private void UpdateScrollTestBothEnabled(ScrollViewer noMarginAndNoPadding, ScrollViewer sv)
+		{
 			var name = sv.Name;
 			var halfScrollableWidth = sv.ScrollableWidth / 2;
 			if (_scrollTestResetRequested)
@@ -96,6 +345,7 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 				_scrollTestIsRunning = true;
 				if (sv.HorizontalOffset > 0)
 				{
+					_scrollTestBegan = false;
 					_ = sv.ChangeView(0, 0, null, true);
 				}
 				else
@@ -107,7 +357,7 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			}
 			if (_scrollTestIsRunning)
 			{
-				if (_scrollTestIsRunning && !_scrollTestBegan)
+				if (!_scrollTestBegan)
 				{
 					if (sv.HorizontalOffset > 0)
 					{
@@ -168,11 +418,36 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 				{
 					HorizontalOffsetAfterScrollTest = sv.HorizontalOffset;
 					_scrollTestComplete = true;
-					_ = sv.ChangeView(0, 0, null, true);
+					//_ = sv.ChangeView(0, 0, null, true);
+					UpdateTestsPassedFailedValues(noMarginAndNoPadding, sv);
+#if DEBUG
+					try
+					{
+						var str = ToString();
+						if (string.IsNullOrEmpty(str))
+						{
+							System.Diagnostics.Debugger.Break();
+							_scrollTestIsRunning = false;
+						}
+						else
+						{
+							_scrollTestIsRunning = false;
+						}
+					}
+					catch (Exception ex)
+					{
+						if (ex.Message != null)
+						{
+							System.Diagnostics.Debugger.Break();
+						}
+					}
+#else
+					_scrollTestIsRunning = false;
+#endif
 					return;
 				}
-				UpdateTestsPassedFailedValues(noMarginAndNoPadding, sv);
-				_scrollTestIsRunning = false;
+				//UpdateTestsPassedFailedValues(noMarginAndNoPadding, sv);
+				//_scrollTestIsRunning = false;
 			}
 		}
 
@@ -225,10 +500,17 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 		{
 			UpdateData(sv);
 
+			var horizontalScrollingEnabled = sv.HorizontalScrollMode != ScrollMode.Disabled && sv.HorizontalScrollBarVisibility != ScrollBarVisibility.Disabled;
+			var verticalScrollingEnabled = sv.VerticalScrollMode != ScrollMode.Disabled && sv.VerticalScrollBarVisibility != ScrollBarVisibility.Disabled;
 			var numberOfTests = 0;
 			var passedTestsCount = 0;
 			var fallbackDoubleValue = double.NaN;
 			var numberOfDigitsForRounding = _numberOfDigitsForRounding;
+
+			var contentMarginLeftRight = ContentMargin.Left + ContentMargin.Right;
+			var scrollViewerPaddingLeftRight = ScrollViewerPadding.Left + ScrollViewerPadding.Right;
+			var contentMarginTopBottom = ContentMargin.Top + ContentMargin.Bottom;
+			var scrollViewerPaddingTopBottom = ScrollViewerPadding.Top + ScrollViewerPadding.Bottom;
 
 			SVActualWidthExpectedDifference = 0;
 			SVActualWidthActualDifference = Math.Round(noMarginAndNoPadding.ActualWidth - SVActualWidthValue, numberOfDigitsForRounding);
@@ -240,27 +522,28 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			numberOfTests++;
 			passedTestsCount += TestPassedValue(SVActualHeightExpectedDifference, SVActualHeightActualDifference);
 
-			ViewportWidthExpectedDifference = ScrollViewerPadding.Left + ScrollViewerPadding.Right;
+			ViewportWidthExpectedDifference = scrollViewerPaddingLeftRight;
 			ViewportWidthActualDifference = Math.Round(noMarginAndNoPadding.ViewportWidth - ViewportWidthValue, numberOfDigitsForRounding);
 			numberOfTests++;
 			passedTestsCount += TestPassedValue(ViewportWidthExpectedDifference, ViewportWidthActualDifference);
 
-			ViewportHeightExpectedDifference = ScrollViewerPadding.Top + ScrollViewerPadding.Bottom;
+			ViewportHeightExpectedDifference = scrollViewerPaddingTopBottom;
 			ViewportHeightActualDifference = Math.Round(noMarginAndNoPadding.ViewportHeight - ViewportHeightValue, numberOfDigitsForRounding);
 			numberOfTests++;
 			passedTestsCount += TestPassedValue(ViewportHeightExpectedDifference, ViewportHeightActualDifference);
 
-			ExtentWidthExpectedDifference = -(ContentMargin.Left + ContentMargin.Right);
+			ExtentWidthExpectedDifference = horizontalScrollingEnabled ? -contentMarginLeftRight : scrollViewerPaddingLeftRight;
 			ExtentWidthActualDifference = Math.Round(noMarginAndNoPadding.ExtentWidth - ExtentWidthValue, numberOfDigitsForRounding);
 			numberOfTests++;
 			passedTestsCount += TestPassedValue(ExtentWidthExpectedDifference, ExtentWidthActualDifference);
 
-			ExtentHeightExpectedDifference = -(ContentMargin.Top + ContentMargin.Bottom);
+			ExtentHeightExpectedDifference = verticalScrollingEnabled ? -contentMarginTopBottom : scrollViewerPaddingTopBottom;
 			ExtentHeightActualDifference = Math.Round(noMarginAndNoPadding.ExtentHeight - ExtentHeightValue, numberOfDigitsForRounding);
 			numberOfTests++;
 			passedTestsCount += TestPassedValue(ExtentHeightExpectedDifference, ExtentHeightActualDifference);
 
-			ContentActualWidthExpectedDifference = 0;
+			// UWP is weird. There is a difference for content width if horizontal scrolling is disabled but there is no difference for content height if vertical scrolling is disabled.
+			ContentActualWidthExpectedDifference = horizontalScrollingEnabled ? 0 : contentMarginLeftRight + scrollViewerPaddingLeftRight;
 			var noMarginAndNoPaddingContent = noMarginAndNoPadding.Content as FrameworkElement;
 			ContentActualWidthActualDifference = Math.Round((noMarginAndNoPaddingContent?.ActualWidth ?? fallbackDoubleValue) - ContentActualWidthValue, numberOfDigitsForRounding);
 			numberOfTests++;
@@ -271,12 +554,12 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			numberOfTests++;
 			passedTestsCount += TestPassedValue(ContentActualHeightExpectedDifference, ContentActualHeightActualDifference);
 
-			ScrollableWidthExpectedDifference = -(ContentMargin.Left + ContentMargin.Right + ScrollViewerPadding.Left + ScrollViewerPadding.Right);
+			ScrollableWidthExpectedDifference = horizontalScrollingEnabled ? -(contentMarginLeftRight + scrollViewerPaddingLeftRight) : 0;
 			ScrollableWidthActualDifference = Math.Round(noMarginAndNoPadding.ScrollableWidth - ScrollableWidthValue, numberOfDigitsForRounding);
 			numberOfTests++;
 			passedTestsCount += TestPassedValue(ScrollableWidthExpectedDifference, ScrollableWidthActualDifference);
 
-			ScrollableHeightExpectedDifference = -(ContentMargin.Top + ContentMargin.Bottom + ScrollViewerPadding.Top + ScrollViewerPadding.Bottom);
+			ScrollableHeightExpectedDifference = verticalScrollingEnabled ? -(contentMarginTopBottom + scrollViewerPaddingTopBottom) : 0;
 			ScrollableHeightActualDifference = Math.Round(noMarginAndNoPadding.ScrollableHeight - ScrollableHeightValue, numberOfDigitsForRounding);
 			numberOfTests++;
 			passedTestsCount += TestPassedValue(ScrollableHeightExpectedDifference, ScrollableHeightActualDifference);
@@ -948,5 +1231,9 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 				}
 			}
 		}
+
+		public override string ToString() => $"##     {nameof(ScrollViewerName)}: '{ScrollViewerName ?? "(null ScrollViewerName)"}'; {nameof(DisplayName)}: '{DisplayName ?? "(null DisplayName)"}'; " + string.Concat(GetType()
+			.GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public)
+			.Select((p) => { if (p.PropertyType == typeof(string) || !p.CanWrite) { return ""; } else { return $"{p.Name} '{p.GetValue(this) ?? "(null)"}'; "; } })) + "   ##";
 	}
 }
