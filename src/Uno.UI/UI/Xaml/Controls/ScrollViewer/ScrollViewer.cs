@@ -1,4 +1,6 @@
-﻿#if NET461
+﻿#define UNO_ISSUE_7000_WASM_WORKAROUND
+
+#if NET461
 #pragma warning disable CS0067
 #endif
 
@@ -989,6 +991,11 @@ namespace Windows.UI.Xaml.Controls
 			_snapPointsInfo = newValue as IScrollSnapPointsInfo;
 		}
 
+#if __WASM__ && UNO_ISSUE_7000_WASM_WORKAROUND
+		internal const string UnoIssue7000WASMorkaroundTagValue = "UNO_ISSUE_7000_WASM_WORKAROUND_TAG_VALUE";
+		private Style _unoIssue7000WASMorkaroundEmptyBorderStyle = new Style(typeof(Border));
+#endif
+
 		private void ApplyScrollContentPresenterContent(object content)
 		{
 			// Stop the automatic propagation of the templated parent on the Content
@@ -1009,7 +1016,23 @@ namespace Windows.UI.Xaml.Controls
 			// Then explicitly propagate the Content to the _presenter
 			if (_presenter != null)
 			{
+#if __WASM__ && UNO_ISSUE_7000_WASM_WORKAROUND
+				if (content is FrameworkElement fe && fe.Margin != default)
+				{
+					// Note: ScrollContentPresenter.ArrangeOverride relies on this being a Border for properly checking for ICustomScrollInfo. If this is changed
+					//	to a control type other than Border, that method also needs to be changed,
+					var spacingElement = new Border() { Style = _unoIssue7000WASMorkaroundEmptyBorderStyle, BorderBrush = SolidColorBrushHelper.Transparent, BorderThickness = default, Margin = default, Padding = default, IsTabStop = false, Tag = UnoIssue7000WASMorkaroundTagValue };
+					spacingElement.Child = content as View;
+					fe.LogicalParentOverride = this;
+					_presenter.Content = spacingElement;
+				}
+				else
+				{
+					_presenter.Content = content as View;
+				}
+#else
 				_presenter.Content = content as View;
+#endif
 			}
 
 			// Propagate the ScrollViewer's own templated parent, instead of
