@@ -196,8 +196,46 @@ namespace Windows.UI.Xaml.Controls
 
 				child.Arrange(childRect);
 
+#if __WASM__
+				// NOTE: This code path is unnecessary if the method ApplyScrollContentPresenterContent ScrollViewer.cs does not contain the workaround of
+				//	wrapping content that has a non-default Margin value in a Border control with no styling (or other FrameworkElement if Border was unsuitable).
+				if (child is FrameworkElement fe && fe.Margin != default)
+				{
+					// We rely on the Tag to let us know that we have the workaround in place
+					if (fe.Tag is string tag && tag == ScrollViewer.UnoIssue7000WASMorkaroundTagValue)
+					{
+						if (fe is Border b)
+						{
+							// Give opportunity to the the content to define the viewport size itself; the Border's Child is the actual user content
+							// and the Border should not occupy any space so the custom viewport, if any, should work as the user intended.
+							(b.Child as ICustomScrollInfo)?.ApplyViewport(ref finalSize);
+						}
+						else
+						{
+							// The type of control used as a wrapper was changed in ScrollViewer.ApplyScrollContentPresenterContent without updating this code.
+							_logDebug?.Debug($"Expected {nameof(child)} to be of type {nameof(Border)}; instead it is of type {fe.GetType().FullName}.");
+							// Give opportunity to the the content to define the viewport size itself; this is unlikely to work unless the wrapper was setup to
+							// implement ICustomScrollInfo and forward the call to ApplyViewport to the actual content.
+							(child as ICustomScrollInfo)?.ApplyViewport(ref finalSize);
+						}
+					}
+					else
+					{
+						// The Tag check failed so presumably the workaround was removed. Assume that child is the actual user Content and proceed.
+						// Give opportunity to the the content to define the viewport size itself
+						_logDebug?.Debug($"{nameof(child)} has a Margin but the check for a wrapper using Tag == {nameof(ScrollViewer)}.{nameof(ScrollViewer.UnoIssue7000WASMorkaroundTagValue)} failed. Assuming the workaround was removed and there is no wrapper.");
+						(child as ICustomScrollInfo)?.ApplyViewport(ref finalSize);
+					}
+				}
+				else
+				{
+					// Give opportunity to the the content to define the viewport size itself
+					(child as ICustomScrollInfo)?.ApplyViewport(ref finalSize);
+				}
+#else
 				// Give opportunity to the the content to define the viewport size itself
 				(child as ICustomScrollInfo)?.ApplyViewport(ref finalSize);
+#endif
 			}
 
 			return finalSize;
