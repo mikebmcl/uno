@@ -18,6 +18,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using UITests.Shared.Helpers;
 using System.Collections.ObjectModel;
+using Windows.ApplicationModel.DataTransfer;
 #if HAS_UNO
 using Uno.Foundation.Logging;
 #else
@@ -38,6 +39,11 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 		public ScrollViewer_PaddingContentMargin()
 		{
 			this.InitializeComponent();
+
+			var displayInformation = Windows.Graphics.Display.DisplayInformation.GetForCurrentView();
+			LogicalDpi = displayInformation?.LogicalDpi ?? 0;
+			RawPixelsPerViewPixel = displayInformation?.RawPixelsPerViewPixel ?? 0;
+			ResolutionScale = displayInformation?.ResolutionScale ?? Windows.Graphics.Display.ResolutionScale.Invalid;
 
 			// Create with three empty entries because we want the data order to match the order of the ScrollViewers
 			NeitherScrollViewerPaddingContentMarginData = new ScrollViewerPaddingContentMarginViewModel(NeitherDisplayName);
@@ -80,7 +86,68 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 		public event PropertyChangedEventHandler PropertyChanged;
 		private void RaisePropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-		private Thickness _scrollViewerBorderThickness = new Thickness(1);
+		private int _numberOfDigitsForRounding = 3;
+		public int NumberOfDigitsForRounding
+		{
+			get => _numberOfDigitsForRounding;
+			set
+			{
+				if (_numberOfDigitsForRounding != value)
+				{
+					_numberOfDigitsForRounding = value;
+					RaisePropertyChanged();
+				}
+			}
+		}
+
+		private float _logicalDpi;
+		public float LogicalDpi
+		{
+			get => _logicalDpi;
+			set
+			{
+				var numberOfDigitsForRounding = _numberOfDigitsForRounding;
+				if (_logicalDpi != (float)Math.Round(value, numberOfDigitsForRounding))
+				{
+					_logicalDpi = (float)Math.Round(value, numberOfDigitsForRounding);
+					RaisePropertyChanged();
+				}
+			}
+		}
+		public string LogicalDpiName => nameof(LogicalDpi);
+
+		private double _rawPixelsPerViewPixel;
+		public double RawPixelsPerViewPixel
+		{
+			get => _rawPixelsPerViewPixel;
+			set
+			{
+				var numberOfDigitsForRounding = _numberOfDigitsForRounding;
+				if (_rawPixelsPerViewPixel != Math.Round(value, numberOfDigitsForRounding))
+				{
+					_rawPixelsPerViewPixel = Math.Round(value, numberOfDigitsForRounding);
+					RaisePropertyChanged();
+				}
+			}
+		}
+		public string RawPixelsPerViewPixelName => nameof(RawPixelsPerViewPixel);
+
+		private Windows.Graphics.Display.ResolutionScale _resolutionScale;
+		public Windows.Graphics.Display.ResolutionScale ResolutionScale
+		{
+			get => _resolutionScale;
+			set
+			{
+				if (_resolutionScale != value)
+				{
+					_resolutionScale = value;
+					RaisePropertyChanged();
+				}
+			}
+		}
+		public string ResolutionScaleName => nameof(ResolutionScale);
+
+		private Thickness _scrollViewerBorderThickness = new Thickness(2, 1, 3, 2);
 		public Thickness ScrollViewerBorderThickness
 		{
 			get => _scrollViewerBorderThickness;
@@ -93,7 +160,7 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 				}
 			}
 		}
-		private Thickness _contentBorderThickness = new Thickness(2);
+		private Thickness _contentBorderThickness = new Thickness(3, 2, 4, 3);
 		public Thickness ContentBorderThickness
 		{
 			get => _contentBorderThickness;
@@ -165,14 +232,20 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 			}
 		}
 
-		//private void UpdateTestScrollViewersLayouts()
-		//{
-		//	NeitherScrollViewer.UpdateLayout();
-		//	ContentMarginScrollViewer.UpdateLayout();
-		//	SVPaddingScrollViewer.UpdateLayout();
-		//	BothScrollViewer.UpdateLayout();
-		//}
+		private void CopyTestResults(object _, RoutedEventArgs __)
+		{
+			var data = new DataPackage();
+			string ThicknessToString(string name, Thickness value)
+			{
+				return $"{name}.{nameof(value.Left)}:{value.Left}\n" +
+					$"{name}.{nameof(value.Top)}:{value.Top}\n" +
+					$"{name}.{nameof(value.Right)}:{value.Right}\n" +
+					$"{name}.{nameof(value.Bottom)}:{value.Bottom}\n";
+			}
+			data.SetText($"{ThicknessToString(nameof(ScrollViewerBorderThickness), ScrollViewerBorderThickness)}{ThicknessToString(nameof(ContentBorderThickness), ContentBorderThickness)}{NeitherScrollViewerPaddingContentMarginData}\n{ContentMarginScrollViewerPaddingContentMarginData}\n{SVPaddingScrollViewerPaddingContentMarginData}\n{BothScrollViewerPaddingContentMarginData}\n");
 
+			Clipboard.SetContent(data);
+		}
 
 		private void ForceSizeChangedUsingScrollViewerMarginAdjustment()
 		{
@@ -231,6 +304,10 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 				{
 					_verticalScrollBarVisibility = value;
 					RaisePropertyChanged();
+					NeitherScrollViewerPaddingContentMarginData.Reset();
+					ContentMarginScrollViewerPaddingContentMarginData.Reset();
+					SVPaddingScrollViewerPaddingContentMarginData.Reset();
+					BothScrollViewerPaddingContentMarginData.Reset();
 					ForceSizeChangedUsingScrollViewerMarginAdjustment();
 				}
 			}
@@ -261,6 +338,10 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollViewerTests
 				{
 					_horizontalScrollBarVisibility = value;
 					RaisePropertyChanged();
+					NeitherScrollViewerPaddingContentMarginData.Reset();
+					ContentMarginScrollViewerPaddingContentMarginData.Reset();
+					SVPaddingScrollViewerPaddingContentMarginData.Reset();
+					BothScrollViewerPaddingContentMarginData.Reset();
 					ForceSizeChangedUsingScrollViewerMarginAdjustment();
 				}
 			}
