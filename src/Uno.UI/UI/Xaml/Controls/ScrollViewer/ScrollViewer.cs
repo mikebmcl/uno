@@ -713,8 +713,16 @@ namespace Windows.UI.Xaml.Controls
 			}
 			else if (Content is FrameworkElement fe)
 			{
+				var horizontalScrollingEnabled = HorizontalScrollMode != ScrollMode.Disabled && HorizontalScrollBarVisibility != ScrollBarVisibility.Disabled;
+				var verticalScrollingEnabled = VerticalScrollMode != ScrollMode.Disabled && VerticalScrollBarVisibility != ScrollBarVisibility.Disabled;
+				var contentMarginLeftRight = fe.Margin.Left + fe.Margin.Right;
+				var scrollViewerPaddingLeftRight = Padding.Left + Padding.Right;
+				var contentMarginTopBottom = fe.Margin.Top + fe.Margin.Bottom;
+				var scrollViewerPaddingTopBottom = Padding.Top + Padding.Bottom;
+
 				var explicitHeight = fe.Height;
-				var extentHeightAdjustment = fe.Margin.Top + fe.Margin.Bottom;
+				//var extentHeightAdjustment = contentMarginTopBottom;//verticalScrollingEnabled ? -contentMarginTopBottom : scrollViewerPaddingTopBottom;//fe.Margin.Top + fe.Margin.Bottom;
+				var extentHeightAdjustment = verticalScrollingEnabled ? contentMarginTopBottom : 0;// : scrollViewerPaddingTopBottom;
 				if (explicitHeight.IsFinite())
 				{
 					ExtentHeight = explicitHeight + extentHeightAdjustment;
@@ -724,12 +732,19 @@ namespace Windows.UI.Xaml.Controls
 					var canUseActualHeightAsExtent =
 						fe.ActualHeight > 0 &&
 						fe.VerticalAlignment == VerticalAlignment.Stretch;
-
-					ExtentHeight = canUseActualHeightAsExtent ? fe.ActualHeight + extentHeightAdjustment : fe.DesiredSize.Height + extentHeightAdjustment;
+					if (!verticalScrollingEnabled && fe.VerticalAlignment == VerticalAlignment.Stretch)
+					{
+						ExtentHeight = ViewportHeight;
+					}
+					else
+					{
+						ExtentHeight = canUseActualHeightAsExtent ? fe.ActualHeight + extentHeightAdjustment : fe.DesiredSize.Height + extentHeightAdjustment;
+					}
 				}
 
 				var explicitWidth = fe.Width;
-				var extentWidthAdjustment = fe.Margin.Left + fe.Margin.Right;
+				//var extentWidthAdjustment = contentMarginLeftRight; //horizontalScrollingEnabled ? -contentMarginLeftRight : scrollViewerPaddingLeftRight;//fe.Margin.Left + fe.Margin.Right;
+				var extentWidthAdjustment = horizontalScrollingEnabled ? contentMarginLeftRight : 0;// : scrollViewerPaddingLeftRight;
 				if (explicitWidth.IsFinite())
 				{
 					ExtentWidth = explicitWidth + extentWidthAdjustment;
@@ -739,8 +754,14 @@ namespace Windows.UI.Xaml.Controls
 					var canUseActualWidthAsExtent =
 						fe.ActualWidth > 0 &&
 						fe.HorizontalAlignment == HorizontalAlignment.Stretch;
-
-					ExtentWidth = canUseActualWidthAsExtent ? fe.ActualWidth + extentWidthAdjustment : fe.DesiredSize.Width + extentWidthAdjustment;
+					if (!horizontalScrollingEnabled && fe.HorizontalAlignment == HorizontalAlignment.Stretch)
+					{
+						ExtentWidth = ViewportWidth;
+					}
+					else
+					{
+						ExtentWidth = canUseActualWidthAsExtent ? fe.ActualWidth + extentWidthAdjustment : fe.DesiredSize.Width + extentWidthAdjustment;
+					}
 				}
 			}
 			else

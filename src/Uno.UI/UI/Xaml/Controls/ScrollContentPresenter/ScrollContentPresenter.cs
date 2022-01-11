@@ -158,15 +158,57 @@ namespace Windows.UI.Xaml.Controls
 			{
 				var slotSize = size;
 
+#if __WASM__
+				if (CanVerticallyScroll || _forceChangeToCurrentView)
+				{
+					slotSize.Height = double.PositiveInfinity;
+				}
+				if (!CanVerticallyScroll)
+				{
+					if (child is FrameworkElement fe)
+					{
+						// The slot size we got is reduced by the margin... of this. It should be reduced by the margin of the child if it can't scroll.
+						slotSize.Height = Math.Max(0, slotSize.Height - (fe.Margin.Top + fe.Margin.Bottom));
+					}
+				}
+				if (CanHorizontallyScroll || _forceChangeToCurrentView)
+				{
+					slotSize.Width = double.PositiveInfinity;
+				}
+				if (!CanHorizontallyScroll)
+				{
+					if (child is FrameworkElement fe)
+					{
+						// The slot size we got is reduced by the margin... of this. It should be reduced by the margin of the child if it can't scroll.
+						slotSize.Width = Math.Max(0, slotSize.Width - (fe.Margin.Left + fe.Margin.Right));
+					}
+				}
+#else
 				if (CanVerticallyScroll)
 				{
 					slotSize.Height = double.PositiveInfinity;
+				}
+				else
+				{
+					if (child is FrameworkElement fe)
+					{
+						// The slot size we got is reduced by the margin... of this. It should be reduced by the margin of the child if it can't scroll.
+						slotSize.Height = Math.Max(0, slotSize.Height - (fe.Margin.Top + fe.Margin.Bottom));
+					}
 				}
 				if (CanHorizontallyScroll)
 				{
 					slotSize.Width = double.PositiveInfinity;
 				}
-
+				else
+				{
+					if (child is FrameworkElement fe)
+					{
+						// The slot size we got is reduced by the margin... of this. It should be reduced by the margin of the child if it can't scroll.
+						slotSize.Width = Math.Max(0, slotSize.Width - (fe.Margin.Left + fe.Margin.Right));
+					}
+				}
+#endif
 				child.Measure(slotSize);
 
 				var desired = child.DesiredSize;

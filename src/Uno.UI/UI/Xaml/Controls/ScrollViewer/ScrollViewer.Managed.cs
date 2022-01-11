@@ -42,6 +42,30 @@ namespace Windows.UI.Xaml.Controls
 		{
 			if (_presenter is ContentPresenter presenter && presenter.Content is FrameworkElement presenterContent)
 			{
+				////var presenterViewportSize = GetActualExtent(presenter, orientation);
+				////presenterViewportSize -= orientation == Orientation.Horizontal ?
+				////	Padding.Left + Padding.Right :
+				////	Padding.Top + Padding.Bottom;
+				////var contentExtent = GetActualExtent(presenterContent, orientation);
+				////contentExtent += orientation == Orientation.Horizontal ?
+				////	presenterContent.Margin.Left + presenterContent.Margin.Right :
+				////	presenterContent.Margin.Top + presenterContent.Margin.Bottom;
+				//var presenterViewportSize = GetActualExtent(presenter, orientation);
+				//var presenterViewportAdjustment = orientation == Orientation.Horizontal ?
+				//	((HorizontalScrollBarVisibility != ScrollBarVisibility.Disabled && HorizontalScrollMode != ScrollMode.Disabled) ? Padding.Left + Padding.Right : 0) :
+				//	((VerticalScrollBarVisibility != ScrollBarVisibility.Disabled && VerticalScrollMode != ScrollMode.Disabled) ? Padding.Top + Padding.Bottom : 0);
+				////presenterViewportSize -= orientation == Orientation.Horizontal ?
+				////	Padding.Left + Padding.Right :
+				////	Padding.Top + Padding.Bottom;
+				//presenterViewportSize -= presenterViewportAdjustment;
+				//var contentExtent = GetActualExtent(presenterContent, orientation);
+				//var contentExtentAdjustment = orientation == Orientation.Horizontal ?
+				//	((HorizontalScrollBarVisibility != ScrollBarVisibility.Disabled && HorizontalScrollMode != ScrollMode.Disabled) ? presenterContent.Margin.Left + presenterContent.Margin.Right : 0) :
+				//	((VerticalScrollBarVisibility != ScrollBarVisibility.Disabled && VerticalScrollMode != ScrollMode.Disabled) ? presenterContent.Margin.Top + presenterContent.Margin.Bottom : 0);
+				////contentExtent += orientation == Orientation.Horizontal ?
+				////	presenterContent.Margin.Left + presenterContent.Margin.Right :
+				////	presenterContent.Margin.Top + presenterContent.Margin.Bottom;
+				//contentExtent += contentExtentAdjustment;
 				var presenterViewportSize = GetActualExtent(presenter, orientation);
 				presenterViewportSize -= orientation == Orientation.Horizontal ?
 					Padding.Left + Padding.Right :
@@ -50,6 +74,7 @@ namespace Windows.UI.Xaml.Controls
 				contentExtent += orientation == Orientation.Horizontal ?
 					presenterContent.Margin.Left + presenterContent.Margin.Right :
 					presenterContent.Margin.Top + presenterContent.Margin.Bottom;
+
 				var offset = GetOffsetForOrientation(orientation);
 				var viewportEnd = offset + presenterViewportSize;
 				var overscroll = contentExtent - viewportEnd;
