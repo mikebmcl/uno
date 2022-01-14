@@ -753,8 +753,29 @@ namespace Windows.UI.Xaml
 		//	} while (dependencyObject != null);
 		//	return null;
 		//}
+		private UIElement GetTopMostElement()
+		{
+			if (XamlRoot.Content != null)
+			{
+				return XamlRoot.Content;
+			}
+			var dependencyObject = this as DependencyObject;
+			var result = this;
+			while (true)
+			{
+				var parent = Media.VisualTreeHelper.GetParent(dependencyObject);
+				if (parent == null)
+				{
+					return result;
+				}
+				if (parent is UIElement)
+				{
+					result = parent as UIElement;
+				}
+			}
+		}
 
-		private bool ControlTemplateCheck(DependencyObject dependencyObject)
+		private bool IsInControlTemplate(DependencyObject dependencyObject)
 		{
 			if (dependencyObject == null)
 			{
@@ -784,11 +805,17 @@ namespace Windows.UI.Xaml
 				case RoutedEventFlag.PointerEntered:
 					//if (!IsPointerOver)
 					{
-						OnPointerEnter(ptArgs, BubblingContext.OnManagedBubbling);
 						var dependencyObject = this as DependencyObject;
-						if (!ControlTemplateCheck(dependencyObject) || ((this as FrameworkElement)?.Parent as UIElement)?.IsPointerOver is true || IsCaptured(ptArgs.Pointer))
+						//if ((!IsInControlTemplate(dependencyObject) || IsCaptured(ptArgs.Pointer) && ((this as FrameworkElement)?.Parent as UIElement)?.IsPointerOver is true))
+						//{
+						//	bubblingMode = BubblingMode.IgnoreParents;
+						//}
+						var bubblingContext = new BubblingContext() { Root = GetFirstAncestorWherePointerIsOver(this) };
+						OnPointerEnter(ptArgs, bubblingContext);//BubblingContext.OnManagedBubbling);
+																//if ((!IsInControlTemplate(dependencyObject) || IsCaptured(ptArgs.Pointer) && ((this as FrameworkElement)?.Parent as UIElement)?.IsPointerOver is true))
+						if (!IsInControlTemplate(dependencyObject) || ((this as FrameworkElement)?.Parent as UIElement)?.IsPointerOver is true || IsCaptured(ptArgs.Pointer))
 						{
-							bubblingMode = BubblingMode.IgnoreElement;
+							bubblingMode = BubblingMode.NoBubbling;
 						}
 
 						//// Entered and Exited are never bubbling, we bubble them only for internal state updates, but event should not be raised
@@ -819,23 +846,52 @@ namespace Windows.UI.Xaml
 					OnPointerDown(ptArgs, BubblingContext.OnManagedBubbling);
 					break;
 				case RoutedEventFlag.PointerMoved:
+					//if (IsPointerCaptured)
+					//{
+					//	OnPointerMove(ptArgs, new BubblingContext() { Root = this });
+					//}
+					//else
+					//{
 					OnPointerMove(ptArgs, BubblingContext.OnManagedBubbling);
+					//}
 					break;
 				case RoutedEventFlag.PointerReleased:
-					OnPointerUp(ptArgs, BubblingContext.OnManagedBubbling);
+					{
+						//var wasCaptured = IsPointerCaptured;
+						OnPointerUp(ptArgs, BubblingContext.OnManagedBubbling);
+						//if (wasCaptured)
+						//{
+						//	// Need to update IsPointerOver
+						//	//foreach (var element in Media.VisualTreeHelper.FindElementsInHostCoordinates(ptArgs.GetCurrentPoint(null).Position, GetTopMostElement())
+						//	//{
+
+						//	//}
+						//	//var ptPoint = ptArgs.GetCurrentPoint(this);
+						//	//var actualWidth = GetActualWidth();
+						//	//var actualHeight = GetActualHeight();
+						//	//if (RectHelper.Contains(new Rect(0, 0, actualWidth, actualHeight), ptPoint.Position))
+						//	if (!Media.VisualTreeHelper.IsElementIntersecting(ptArgs.GetCurrentPoint(null).Position, this))
+						//	{
+						//		OnPointerExited(ptArgs, BubblingContext.OnManagedBubbling);
+						//	}
+						//}
+					}
 					break;
 				case RoutedEventFlag.PointerExited:
 					{
-						OnPointerExited(ptArgs, BubblingContext.OnManagedBubbling);
-						//var dependencyObject = this as DependencyObject;
-						//if (!(dependencyObject is Windows.UI.Xaml.Controls.ControlTemplate) && FindFirstAncestorOrDefault<Windows.UI.Xaml.Controls.ControlTemplate>(this) == null)
-						//{
-						//	bubblingMode = BubblingMode.IgnoreElement;
-						//}
-						var dependencyObject = this as DependencyObject;
-						if (!ControlTemplateCheck(dependencyObject) || IsCaptured(ptArgs.Pointer))
+						if (IsPointerOver)
 						{
-							bubblingMode = BubblingMode.IgnoreElement;
+							OnPointerExited(ptArgs, BubblingContext.OnManagedBubbling);
+							//var dependencyObject = this as DependencyObject;
+							//if (!(dependencyObject is Windows.UI.Xaml.Controls.ControlTemplate) && FindFirstAncestorOrDefault<Windows.UI.Xaml.Controls.ControlTemplate>(this) == null)
+							//{
+							//	bubblingMode = BubblingMode.IgnoreElement;
+							//}
+							var dependencyObject = this as DependencyObject;
+							if (!IsInControlTemplate(dependencyObject) || IsCaptured(ptArgs.Pointer))
+							{
+								bubblingMode = BubblingMode.NoBubbling;
+							}
 						}
 					}
 					// Entered and Exited are never bubbling, we bubble them only for internal state updates, but event should not be raised
@@ -1159,6 +1215,19 @@ namespace Windows.UI.Xaml
 		/// </remarks>
 		internal bool IsOver(Pointer pointer) => IsPointerOver;
 
+		private UIElement GetFirstAncestorWherePointerIsOver(UIElement element)
+		{
+			while (element != null)
+			{
+				if (((element as FrameworkElement)?.Parent as UIElement)?.IsPointerOver is true)
+				{
+					return element;
+				}
+				element = (element as FrameworkElement)?.Parent as UIElement;
+			}
+			return null;
+		}
+
 		private bool SetOver(PointerRoutedEventArgs args, bool isOver, bool muteEvent = false)
 		{
 			var wasOver = IsPointerOver;
@@ -1169,16 +1238,28 @@ namespace Windows.UI.Xaml
 			{
 				return false;
 			}
+			var dependencyObject = this as DependencyObject;
 
+			var bubblingContext = new BubblingContext() { Root = GetFirstAncestorWherePointerIsOver(this) };
 			if (isOver) // Entered
 			{
+				if (!IsInControlTemplate(dependencyObject) || IsCaptured(args.Pointer) || ((this as FrameworkElement)?.Parent as UIElement)?.IsPointerOver is true)
+				{
+					//bubblingContext = BubblingContext.OnManagedBubbling;
+				}
+
 				args.Handled = false;
-				return RaisePointerEvent(PointerEnteredEvent, args);
+				return RaisePointerEvent(PointerEnteredEvent, args, bubblingContext);
 			}
 			else // Exited
 			{
+				if (!IsInControlTemplate(dependencyObject) || IsCaptured(args.Pointer))
+				{
+					bubblingContext = BubblingContext.OnManagedBubbling;
+					//bubblingMode = BubblingMode.IgnoreElement;
+				}
 				args.Handled = false;
-				return RaisePointerEvent(PointerExitedEvent, args);
+				return RaisePointerEvent(PointerExitedEvent, args, bubblingContext);
 			}
 		}
 		#endregion
