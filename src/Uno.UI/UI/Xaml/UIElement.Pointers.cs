@@ -79,7 +79,7 @@ namespace Windows.UI.Xaml
 #endif
 		}
 
-				#region ManipulationMode (DP)
+		#region ManipulationMode (DP)
 		public static DependencyProperty ManipulationModeProperty { get; } = DependencyProperty.Register(
 			"ManipulationMode",
 			typeof(ManipulationModes),
@@ -107,9 +107,9 @@ namespace Windows.UI.Xaml
 			get => (ManipulationModes)this.GetValue(ManipulationModeProperty);
 			set => this.SetValue(ManipulationModeProperty, value);
 		}
-				#endregion
+		#endregion
 
-				#region CanDrag (DP)
+		#region CanDrag (DP)
 		public static DependencyProperty CanDragProperty { get; } = DependencyProperty.Register(
 			nameof(CanDrag),
 			typeof(bool),
@@ -132,9 +132,9 @@ namespace Windows.UI.Xaml
 			get => (bool)GetValue(CanDragProperty);
 			set => SetValue(CanDragProperty, value);
 		}
-				#endregion
+		#endregion
 
-				#region AllowDrop (DP)
+		#region AllowDrop (DP)
 		public static DependencyProperty AllowDropProperty { get; } = DependencyProperty.Register(
 			nameof(AllowDrop),
 			typeof(bool),
@@ -146,7 +146,7 @@ namespace Windows.UI.Xaml
 			get => (bool)GetValue(AllowDropProperty);
 			set => SetValue(AllowDropProperty, value);
 		}
-				#endregion
+		#endregion
 
 		private /* readonly but partial */ Lazy<GestureRecognizer> _gestures;
 
@@ -168,7 +168,7 @@ namespace Windows.UI.Xaml
 			// MotionEventSplittingEnabled = true;
 
 			_gestures = new Lazy<GestureRecognizer>(CreateGestureRecognizer);
-			
+
 			InitializePointersPartial();
 			if (this is FrameworkElement fwElt)
 			{
@@ -266,7 +266,7 @@ namespace Windows.UI.Xaml
 
 		#region GestureRecognizer wire-up
 
-				#region Event to RoutedEvent handler adapters
+		#region Event to RoutedEvent handler adapters
 		// Note: For the manipulation and gesture event args, the original source has to be the element that raise the event
 		//		 As those events are bubbling in managed only, the original source will be right one for all.
 
@@ -276,7 +276,7 @@ namespace Windows.UI.Xaml
 			that.SafeRaiseEvent(ManipulationStartingEvent, new ManipulationStartingRoutedEventArgs(that, args));
 		};
 
-		private static readonly TypedEventHandler<GestureRecognizer, ManipulationStartedEventArgs> OnRecognizerManipulationStarted = (sender,  args) =>
+		private static readonly TypedEventHandler<GestureRecognizer, ManipulationStartedEventArgs> OnRecognizerManipulationStarted = (sender, args) =>
 		{
 			var that = (UIElement)sender.Owner;
 			that.SafeRaiseEvent(ManipulationStartedEvent, new ManipulationStartedRoutedEventArgs(that, sender, args));
@@ -396,7 +396,7 @@ namespace Windows.UI.Xaml
 			}
 		}
 		#endregion
-		
+
 		#region Manipulations (recognizer settings / custom bubbling)
 		partial void AddManipulationHandler(RoutedEvent routedEvent, int handlersCount, object handler, bool handledEventsToo)
 		{
@@ -525,7 +525,7 @@ namespace Windows.UI.Xaml
 				_gestures.Value.CompleteGesture();
 			}
 		}
-				#endregion
+		#endregion
 
 		#region Drag And Drop (recognizer settings / custom bubbling / drag starting event)
 		private void UpdateDragAndDrop(bool isEnabled)
@@ -554,21 +554,21 @@ namespace Windows.UI.Xaml
 					break;
 
 				case RoutedEventFlag.DragEnter:
-				{
-					var pt = ((global::Windows.UI.Xaml.DragEventArgs)args).SourceId;
-					var wasDragOver = IsDragOver(pt);
-
-					// As the IsDragOver is expected to reflect the state of the current element **and the state of its children**,
-					// even if the AllowDrop flag has not been set, we have to update the IsDragOver state.
-					SetIsDragOver(pt, true);
-
-					if (!AllowDrop // The Drag and Drop "routed" events are raised only on controls that opted-in
-						|| wasDragOver) // If we already had a DragEnter do not raise it twice
 					{
-						bubblingMode = BubblingMode.IgnoreElement;
+						var pt = ((global::Windows.UI.Xaml.DragEventArgs)args).SourceId;
+						var wasDragOver = IsDragOver(pt);
+
+						// As the IsDragOver is expected to reflect the state of the current element **and the state of its children**,
+						// even if the AllowDrop flag has not been set, we have to update the IsDragOver state.
+						SetIsDragOver(pt, true);
+
+						if (!AllowDrop // The Drag and Drop "routed" events are raised only on controls that opted-in
+							|| wasDragOver) // If we already had a DragEnter do not raise it twice
+						{
+							bubblingMode = BubblingMode.IgnoreElement;
+						}
+						break;
 					}
-					break;
-				}
 
 				case RoutedEventFlag.DragOver:
 					// As the IsDragOver is expected to reflect the state of the current element **and the state of its children**,
@@ -583,21 +583,21 @@ namespace Windows.UI.Xaml
 
 				case RoutedEventFlag.DragLeave:
 				case RoutedEventFlag.Drop:
-				{
-					var pt = ((global::Windows.UI.Xaml.DragEventArgs)args).SourceId;
-					var wasDragOver = IsDragOver(pt);
-
-					// As the IsDragOver is expected to reflect the state of the current element **and the state of its children**,
-					// even if the AllowDrop flag has not been set, we have to update the IsDragOver state.
-					SetIsDragOver(pt, false);
-
-					if (!AllowDrop // The Drag and Drop "routed" events are raised only on controls that opted-in
-						|| !wasDragOver) // No Leave or Drop if we was not effectively over ^^
 					{
-						bubblingMode = BubblingMode.IgnoreElement;
+						var pt = ((global::Windows.UI.Xaml.DragEventArgs)args).SourceId;
+						var wasDragOver = IsDragOver(pt);
+
+						// As the IsDragOver is expected to reflect the state of the current element **and the state of its children**,
+						// even if the AllowDrop flag has not been set, we have to update the IsDragOver state.
+						SetIsDragOver(pt, false);
+
+						if (!AllowDrop // The Drag and Drop "routed" events are raised only on controls that opted-in
+							|| !wasDragOver) // No Leave or Drop if we was not effectively over ^^
+						{
+							bubblingMode = BubblingMode.IgnoreElement;
+						}
+						break;
 					}
-					break;
-				}
 			}
 		}
 
@@ -615,7 +615,7 @@ namespace Windows.UI.Xaml
 				// But: (1.) on UWP only the top-most draggable element starts the drag operation;
 				// (2.) as CoreDragDropManager.AreConcurrentOperationsEnabled is false by default, the parent would cancel the drag of its child
 				// So here we allow only one "starting" per "FrameId".
-				|| args.Pointer.FrameId <= _lastDragStartFrameId) 
+				|| args.Pointer.FrameId <= _lastDragStartFrameId)
 			{
 				return;
 			}
@@ -739,7 +739,42 @@ namespace Windows.UI.Xaml
 				SafeRaiseEvent(DropEvent, args);
 			}
 		}
-				#endregion
+		#endregion
+
+		//private T FindFirstAncestorOrDefault<T>(DependencyObject dependencyObject) where T : class
+		//{
+		//	do
+		//	{
+		//		dependencyObject = Media.VisualTreeHelper.GetParent(dependencyObject);
+		//		if (dependencyObject is T)
+		//		{
+		//			return dependencyObject as T;
+		//		}
+		//	} while (dependencyObject != null);
+		//	return null;
+		//}
+
+		private bool ControlTemplateCheck(DependencyObject dependencyObject)
+		{
+			if (dependencyObject == null)
+			{
+				return false;
+			}
+			if (dependencyObject is Controls.Control control && !(control.Template is null))
+			{
+				return true;
+			}
+			do
+			{
+				dependencyObject = Media.VisualTreeHelper.GetParent(dependencyObject);
+				control = dependencyObject as Controls.Control;
+				if (!(control?.Template is null))
+				{
+					return true;
+				}
+			} while (dependencyObject != null);
+			return false;
+		}
 
 		partial void PrepareManagedPointerEventBubbling(RoutedEvent routedEvent, ref RoutedEventArgs args, ref BubblingMode bubblingMode)
 		{
@@ -747,9 +782,38 @@ namespace Windows.UI.Xaml
 			switch (routedEvent.Flag)
 			{
 				case RoutedEventFlag.PointerEntered:
-					OnPointerEnter(ptArgs, BubblingContext.OnManagedBubbling);
-					// Entered and Exited are never bubbling, we bubble them only for internal state updates, but event should not be raised
-					bubblingMode = BubblingMode.IgnoreElement;
+					//if (!IsPointerOver)
+					{
+						OnPointerEnter(ptArgs, BubblingContext.OnManagedBubbling);
+						var dependencyObject = this as DependencyObject;
+						if (!ControlTemplateCheck(dependencyObject) || ((this as FrameworkElement)?.Parent as UIElement)?.IsPointerOver is true || IsCaptured(ptArgs.Pointer))
+						{
+							bubblingMode = BubblingMode.IgnoreElement;
+						}
+
+						//// Entered and Exited are never bubbling, we bubble them only for internal state updates, but event should not be raised
+						////bubblingMode = BubblingMode.IgnoreElement;
+						//{
+						//	if (this is FrameworkElement fe)
+						//	{
+						//		if (fe.Parent is UIElement parentAsUIElem)
+						//		{
+						//			if (parentAsUIElem.IsPointerOver)
+						//			{
+						//				bubblingMode = BubblingMode.IgnoreElement;
+						//			}
+						//		}
+						//		else
+						//		{
+						//			bubblingMode = BubblingMode.IgnoreElement;
+						//		}
+						//	}
+						//	else
+						//	{
+						//		bubblingMode = BubblingMode.IgnoreElement;
+						//	}
+						//}
+					}
 					break;
 				case RoutedEventFlag.PointerPressed:
 					OnPointerDown(ptArgs, BubblingContext.OnManagedBubbling);
@@ -761,16 +825,48 @@ namespace Windows.UI.Xaml
 					OnPointerUp(ptArgs, BubblingContext.OnManagedBubbling);
 					break;
 				case RoutedEventFlag.PointerExited:
-					OnPointerExited(ptArgs, BubblingContext.OnManagedBubbling);
+					{
+						OnPointerExited(ptArgs, BubblingContext.OnManagedBubbling);
+						//var dependencyObject = this as DependencyObject;
+						//if (!(dependencyObject is Windows.UI.Xaml.Controls.ControlTemplate) && FindFirstAncestorOrDefault<Windows.UI.Xaml.Controls.ControlTemplate>(this) == null)
+						//{
+						//	bubblingMode = BubblingMode.IgnoreElement;
+						//}
+						var dependencyObject = this as DependencyObject;
+						if (!ControlTemplateCheck(dependencyObject) || IsCaptured(ptArgs.Pointer))
+						{
+							bubblingMode = BubblingMode.IgnoreElement;
+						}
+					}
 					// Entered and Exited are never bubbling, we bubble them only for internal state updates, but event should not be raised
-					bubblingMode = BubblingMode.IgnoreElement;
+					//{
+					//	if (this is FrameworkElement fe)
+					//	{
+					//		if (fe.Parent is UIElement parentAsUIElem)
+					//		{
+
+					//			if (!parentAsUIElem.IsOver(ptArgs.Pointer))
+					//			{
+					//				bubblingMode = BubblingMode.IgnoreElement;
+					//			}
+					//		}
+					//		else
+					//		{
+					//			bubblingMode = BubblingMode.IgnoreElement;
+					//		}
+					//	}
+					//	else
+					//	{
+					//bubblingMode = BubblingMode.IgnoreElement;
+					//	}
+					//}
 					break;
 				case RoutedEventFlag.PointerCanceled:
 					OnPointerCancel(ptArgs, BubblingContext.OnManagedBubbling);
 					break;
-				// No local state (over/pressed/manipulation/gestures) to update for
-				//	- PointerCaptureLost:
-				//	- PointerWheelChanged:
+					// No local state (over/pressed/manipulation/gestures) to update for
+					//	- PointerCaptureLost:
+					//	- PointerWheelChanged:
 			}
 		}
 

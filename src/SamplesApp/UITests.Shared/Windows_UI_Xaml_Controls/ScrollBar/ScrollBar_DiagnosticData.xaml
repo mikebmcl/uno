@@ -1,0 +1,118 @@
+﻿<Page
+    x:Class="UITests.Windows_UI_Xaml_Controls.ScrollBar.ScrollBar_DiagnosticData"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:UITests.Windows_UI_Xaml_Controls.ScrollBar"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:win="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+	<Grid x:Name="RootGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="*" />
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
+		<StackPanel x:Name="DataStackPanel" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" win:Padding="4">
+			<ComboBox x:Name="IndicatorModeCombo" SelectedValue="{x:Bind SelectedIndicatorMode, Mode=TwoWay}" ItemsSource="{x:Bind IndicatorModeComboItemsSource}">
+			</ComboBox>
+			<TextBlock Text="HValue" />
+			<TextBlock x:Name="HorizontalValue" Text="{x:Bind HorizontalScrollBar.Value, Mode=OneWay}" Margin="0,0,0,2" />
+			<TextBlock Text="VValue" />
+			<TextBlock x:Name="VerticalValue" Text="{x:Bind VerticalScrollBar.Value, Mode=OneWay}" Margin="0,0,0,2" />
+			<TextBlock Text="ScrollValue" />
+			<TextBlock x:Name="scrollValue" Text="None" Margin="0,0,0,2" />
+			<TextBlock Text="ControlsGrid LayoutSlot" />
+			<TextBlock x:Name="controlsGridLayoutSlot" Text="Unknown" Margin="0,0,0,2" />
+			<TextBlock Text="VerticalScrollBar LayoutSlot" />
+			<TextBlock x:Name="verticalScrollBarLayoutSlot" Text="Unknown" Margin="0,0,0,2" />
+			<TextBlock Text="HorizontalScrollBar LayoutSlot" />
+			<TextBlock x:Name="horizontalScrollBarLayoutSlot" Text="Unknown" Margin="0,0,0,2" />
+
+			<TextBlock Text="Page Pointer Entered" />
+			<TextBlock x:Name="pagePointerEntered" Text="0" Margin="0,0,0,2" />
+			<TextBlock Text="RootGrid Pointer Entered" />
+			<TextBlock x:Name="rootGridPointerEntered" Text="0" Margin="0,0,0,2" />
+			<TextBlock Text="TestGrid Pointer Entered" />
+			<TextBlock x:Name="testGridPointerEntered" Text="0" Margin="0,0,0,2" />
+			<TextBlock Text="ControlsGrid Pointer Entered" />
+			<TextBlock x:Name="controlsGridPointerEntered" Text="0" Margin="0,0,0,2" />
+			<TextBlock Text="TestBorder Pointer Entered" />
+			<TextBlock x:Name="testBorderPointerEntered" Text="0" Margin="0,0,0,2" />
+			<TextBlock Text="VerticalScrollBar Pointer Entered" />
+			<TextBlock x:Name="verticalScrollBarPointerEntered" Text="0" Margin="0,0,0,2" />
+			<TextBlock Text="HorizontalScrollBar Pointer Entered" />
+			<TextBlock x:Name="horizontalScrollBarPointerEntered" Text="0" Margin="0,0,0,2" />
+			<TextBlock Text="PointerPosition" />
+			<TextBlock x:Name="pointerPositionValue" Text="None" Margin="0,0,0,2" />
+			<TextBlock Text="PointerPosition Relative to ControlsGrid" />
+			<TextBlock x:Name="pointerPositionRelativeToControlsGridValue" Text="None" Margin="0,0,0,2" />
+			<TextBlock Text="PointerPosition Relative to VerticalScrollBar" />
+			<TextBlock x:Name="pointerPositionRelativeToVerticalScrollBarValue" Text="None" Margin="0,0,0,2" />
+			<TextBlock Text="PointerPosition Relative to HorizontalScrollBar" />
+			<TextBlock x:Name="pointerPositionRelativeToHorizontalScrollBarValue" Text="None" Margin="0,0,0,2" />
+			<Grid HorizontalAlignment="Left">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="*" />
+					<RowDefinition Height="*" />
+					<RowDefinition Height="*" />
+					<RowDefinition Height="*" />
+				</Grid.RowDefinitions>
+				<TextBlock Text="OriginalSource" Grid.Row="0" Grid.ColumnSpan="2" />
+				<TextBlock x:Name="originalSourceType" Grid.Row="1" Grid.Column="0" Text="(null)" Margin="0,0,0,2" />
+				<TextBlock x:Name="originalSourceName" Grid.Row="1" Grid.Column="1" Text="(None)" Margin="4,0,0,2" />
+				<TextBlock Text="OriginalSource Parent" Grid.Row="2" Grid.ColumnSpan="2" />
+				<TextBlock x:Name="originalSourceParentType" Grid.Row="3" Grid.Column="0" Text="(null)" Margin="0,0,0,2" />
+				<TextBlock x:Name="originalSourceParentName" Grid.Row="3" Grid.Column="1" Text="(None)" Margin="4,0,0,2" />
+			</Grid>
+		</StackPanel>
+
+		<Grid x:Name="TestGrid" Grid.Column="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+			<Grid x:Name="ControlsGrid" Width="200" Height="200" Grid.Column="1" BorderBrush="Black" BorderThickness="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="*" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+
+				<Border x:Name="TestBorder" Background="Yellow" />
+
+				<ScrollBar x:Name="VerticalScrollBar"
+							Grid.Column="1"
+							IsTabStop="False"
+							Maximum="200"
+							Orientation="Vertical"
+							Visibility="Visible"
+							IndicatorMode="{x:Bind SelectedIndicatorMode, Mode=OneWay}"
+							Scroll="OnVerticalScroll"
+							Value="100"
+							ViewportSize="200" 
+							HorizontalAlignment="Right" />
+
+				<ScrollBar x:Name="HorizontalScrollBar"
+							IsTabStop="False"
+							Maximum="200"
+							IndicatorMode="{x:Bind SelectedIndicatorMode, Mode=OneWay}"
+							Scroll="OnHorizontalScroll"
+							Orientation="Horizontal"
+							Grid.Row="1"
+							Visibility="Visible"
+							Value="100"
+							ViewportSize="200" />
+
+				<Border x:Name="ScrollBarSeparator"
+						Grid.Row="1"
+						Grid.Column="1"
+						Background="{ThemeResource SystemControlPageBackgroundChromeLowBrush}" />
+			</Grid>
+		</Grid>
+	</Grid>
+</Page>
