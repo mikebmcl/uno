@@ -73,7 +73,12 @@
 		</StackPanel>
 
 		<Grid x:Name="TestGrid" Grid.Column="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-			<Grid x:Name="ControlsGrid" Width="200" Height="200" Grid.Column="1" BorderBrush="Black" BorderThickness="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+			<CheckBox x:Name="EnableDelayedReleaseCheckBox" Grid.Row="0" Margin="8" Content="Enable Delayed ScrollBar Release Pointer Captures" VerticalAlignment="Center" IsChecked="{x:Bind EnableDelayedReleaseIsChecked, Mode=TwoWay}" />
+			<Grid x:Name="ControlsGrid" Grid.Row="1" Width="200" Height="200" Grid.Column="1" BorderBrush="Black" BorderThickness="0" VerticalAlignment="Center" HorizontalAlignment="Center">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="*" />
 					<ColumnDefinition Width="Auto" />

@@ -741,39 +741,6 @@ namespace Windows.UI.Xaml
 		}
 		#endregion
 
-		//private T FindFirstAncestorOrDefault<T>(DependencyObject dependencyObject) where T : class
-		//{
-		//	do
-		//	{
-		//		dependencyObject = Media.VisualTreeHelper.GetParent(dependencyObject);
-		//		if (dependencyObject is T)
-		//		{
-		//			return dependencyObject as T;
-		//		}
-		//	} while (dependencyObject != null);
-		//	return null;
-		//}
-		private UIElement GetTopMostElement()
-		{
-			if (XamlRoot.Content != null)
-			{
-				return XamlRoot.Content;
-			}
-			var dependencyObject = this as DependencyObject;
-			var result = this;
-			while (true)
-			{
-				var parent = Media.VisualTreeHelper.GetParent(dependencyObject);
-				if (parent == null)
-				{
-					return result;
-				}
-				if (parent is UIElement)
-				{
-					result = parent as UIElement;
-				}
-			}
-		}
 
 		private bool IsInControlTemplate(DependencyObject dependencyObject)
 		{
@@ -800,128 +767,80 @@ namespace Windows.UI.Xaml
 		partial void PrepareManagedPointerEventBubbling(RoutedEvent routedEvent, ref RoutedEventArgs args, ref BubblingMode bubblingMode)
 		{
 			var ptArgs = (PointerRoutedEventArgs)args;
+			//// Avoid pointer events when some other UIElement has a pointer capture. If this is part of a control template, let it proceed because the capture might be a control inside the template. Lastly, PointerCancelled eliminates all captured so we let it proceed.
+			//if (PointerIsCapturedByOtherElement(ptArgs.Pointer) && !IsInControlTemplate(this as DependencyObject) && routedEvent.Flag != RoutedEventFlag.PointerCanceled)
+			//{
+			//	return;
+			//}
 			switch (routedEvent.Flag)
 			{
 				case RoutedEventFlag.PointerEntered:
-					//if (!IsPointerOver)
 					{
+						if (PointerCapture.TryGet(ptArgs.Pointer, out var capture))
+						{
+							int capCount = 0;
+							foreach (var item in capture.GetTargets(PointerCaptureKind.Any))
+							{
+								capCount++;
+								var lastDispatchedOriginalSource = item.LastDispatched.OriginalSource;
+								var diagnosticString = $"{capCount} {item.Element.Name ?? "(null)"} {item.Element.GetType().Name} {item.Kind} {item.IsInNativeBubblingTree} {lastDispatchedOriginalSource?.GetType()}";
+							}
+						}
 						var dependencyObject = this as DependencyObject;
-						//if ((!IsInControlTemplate(dependencyObject) || IsCaptured(ptArgs.Pointer) && ((this as FrameworkElement)?.Parent as UIElement)?.IsPointerOver is true))
-						//{
-						//	bubblingMode = BubblingMode.IgnoreParents;
-						//}
 						var bubblingContext = new BubblingContext() { Root = GetFirstAncestorWherePointerIsOver(this) };
-						OnPointerEnter(ptArgs, bubblingContext);//BubblingContext.OnManagedBubbling);
-																//if ((!IsInControlTemplate(dependencyObject) || IsCaptured(ptArgs.Pointer) && ((this as FrameworkElement)?.Parent as UIElement)?.IsPointerOver is true))
+						OnPointerEnter(ptArgs, bubblingContext);
+						//// Entered and Exited are never bubbling, we bubble them only for internal state updates, but event should not be raised unless they occur on controls im a ComtrolTemplate
 						if (!IsInControlTemplate(dependencyObject) || ((this as FrameworkElement)?.Parent as UIElement)?.IsPointerOver is true || IsCaptured(ptArgs.Pointer))
 						{
 							bubblingMode = BubblingMode.NoBubbling;
 						}
-
-						//// Entered and Exited are never bubbling, we bubble them only for internal state updates, but event should not be raised
-						////bubblingMode = BubblingMode.IgnoreElement;
-						//{
-						//	if (this is FrameworkElement fe)
-						//	{
-						//		if (fe.Parent is UIElement parentAsUIElem)
-						//		{
-						//			if (parentAsUIElem.IsPointerOver)
-						//			{
-						//				bubblingMode = BubblingMode.IgnoreElement;
-						//			}
-						//		}
-						//		else
-						//		{
-						//			bubblingMode = BubblingMode.IgnoreElement;
-						//		}
-						//	}
-						//	else
-						//	{
-						//		bubblingMode = BubblingMode.IgnoreElement;
-						//	}
-						//}
 					}
 					break;
 				case RoutedEventFlag.PointerPressed:
 					OnPointerDown(ptArgs, BubblingContext.OnManagedBubbling);
 					break;
 				case RoutedEventFlag.PointerMoved:
-					//if (IsPointerCaptured)
-					//{
-					//	OnPointerMove(ptArgs, new BubblingContext() { Root = this });
-					//}
-					//else
-					//{
 					OnPointerMove(ptArgs, BubblingContext.OnManagedBubbling);
-					//}
 					break;
 				case RoutedEventFlag.PointerReleased:
 					{
-						//var wasCaptured = IsPointerCaptured;
 						OnPointerUp(ptArgs, BubblingContext.OnManagedBubbling);
-						//if (wasCaptured)
-						//{
-						//	// Need to update IsPointerOver
-						//	//foreach (var element in Media.VisualTreeHelper.FindElementsInHostCoordinates(ptArgs.GetCurrentPoint(null).Position, GetTopMostElement())
-						//	//{
-
-						//	//}
-						//	//var ptPoint = ptArgs.GetCurrentPoint(this);
-						//	//var actualWidth = GetActualWidth();
-						//	//var actualHeight = GetActualHeight();
-						//	//if (RectHelper.Contains(new Rect(0, 0, actualWidth, actualHeight), ptPoint.Position))
-						//	if (!Media.VisualTreeHelper.IsElementIntersecting(ptArgs.GetCurrentPoint(null).Position, this))
-						//	{
-						//		OnPointerExited(ptArgs, BubblingContext.OnManagedBubbling);
-						//	}
-						//}
 					}
 					break;
 				case RoutedEventFlag.PointerExited:
 					{
 						if (IsPointerOver)
 						{
+							if (PointerCapture.TryGet(ptArgs.Pointer, out var capture))
+							{
+								int capCount = 0;
+								foreach (var item in capture.GetTargets(PointerCaptureKind.Any))
+								{
+									capCount++;
+									var lastDispatchedOriginalSource = item.LastDispatched.OriginalSource;
+									var diagnosticString = $"{capCount} {item.Element.Name ?? "(null name)"} {item.Element.GetType().Name} {item.Kind} {item.IsInNativeBubblingTree} {lastDispatchedOriginalSource?.GetType()} {(lastDispatchedOriginalSource as UIElement)?.Name ?? "(null source name)"}";
+								}
+							}
 							OnPointerExited(ptArgs, BubblingContext.OnManagedBubbling);
-							//var dependencyObject = this as DependencyObject;
-							//if (!(dependencyObject is Windows.UI.Xaml.Controls.ControlTemplate) && FindFirstAncestorOrDefault<Windows.UI.Xaml.Controls.ControlTemplate>(this) == null)
-							//{
-							//	bubblingMode = BubblingMode.IgnoreElement;
-							//}
 							var dependencyObject = this as DependencyObject;
+							//// Entered and Exited are never bubbling, we bubble them only for internal state updates, but event should not be raised unless they occur on controls im a ComtrolTemplate. The absence of a check to see if the Pointer is over this element's Parent (if any) is intentional. Stopping bubbling in that case will cause effects like items in a ListView remaining in a highlighted state after the pointer moves outside of their bounds.
 							if (!IsInControlTemplate(dependencyObject) || IsCaptured(ptArgs.Pointer))
 							{
 								bubblingMode = BubblingMode.NoBubbling;
 							}
 						}
 					}
-					// Entered and Exited are never bubbling, we bubble them only for internal state updates, but event should not be raised
-					//{
-					//	if (this is FrameworkElement fe)
-					//	{
-					//		if (fe.Parent is UIElement parentAsUIElem)
-					//		{
-
-					//			if (!parentAsUIElem.IsOver(ptArgs.Pointer))
-					//			{
-					//				bubblingMode = BubblingMode.IgnoreElement;
-					//			}
-					//		}
-					//		else
-					//		{
-					//			bubblingMode = BubblingMode.IgnoreElement;
-					//		}
-					//	}
-					//	else
-					//	{
-					//bubblingMode = BubblingMode.IgnoreElement;
-					//	}
-					//}
 					break;
 				case RoutedEventFlag.PointerCanceled:
 					OnPointerCancel(ptArgs, BubblingContext.OnManagedBubbling);
 					break;
+				case RoutedEventFlag.PointerCaptureLost:
+					{
+						OnPointerCaptureLost(ptArgs, BubblingContext.OnManagedBubbling);
+						var diagnosticString = $"{Name ?? "(null name)"} {GetType().Name} {ptArgs.OriginalSource?.GetType()} {(ptArgs.OriginalSource as UIElement)?.Name ?? "(null source name)"}";
+					}
+					break;
 					// No local state (over/pressed/manipulation/gestures) to update for
-					//	- PointerCaptureLost:
 					//	- PointerWheelChanged:
 			}
 		}
@@ -1048,6 +967,7 @@ namespace Windows.UI.Xaml
 		private bool OnPointerUp(PointerRoutedEventArgs args, BubblingContext ctx = default)
 		{
 			var handledInManaged = false;
+			//var hadCapture = IsCaptured(args.Pointer);
 			var isOverOrCaptured = ValidateAndUpdateCapture(args, out var isOver);
 
 			handledInManaged |= SetPressed(args, false, muteEvent: ctx.IsInternal || !isOverOrCaptured);
@@ -1077,6 +997,24 @@ namespace Windows.UI.Xaml
 			}
 #endif
 
+			//if (hadCapture && !ctx.IsInternal)// && !IsCaptured(args.Pointer))
+			//{
+			//	// Need to give send out a pointer over because capture was lost https://docs.microsoft.com/en-us/uwp/api/windows.ui.xaml.uielement.pointerentered?view=winrt-19041#pointer-capture
+			//	//RaisePointerEvent(PointerEnteredEvent, args, ctx);
+			//}
+
+			return handledInManaged;
+		}
+
+		private bool OnPointerCaptureLost(PointerRoutedEventArgs args, BubblingContext ctx = default)
+		{
+			var handledInManaged = false;
+			if (!IsCaptured(args.Pointer))
+			{
+				return false;
+			}
+			handledInManaged |= SetNotCaptured(args, true);
+			//RaisePointerEvent(PointerEnteredEvent, args, ctx);
 			return handledInManaged;
 		}
 
@@ -1374,6 +1312,10 @@ namespace Windows.UI.Xaml
 			=> HasPointerCapture
 				&& PointerCapture.TryGet(pointer, out var capture)
 				&& capture.IsTarget(this, PointerCaptureKind.Explicit);
+
+		//internal bool PointerIsCapturedByOtherElement(Pointer pointer)
+		//	=> PointerCapture.TryGet(pointer, out var capture)
+		//		&& !capture.IsTarget(this, PointerCaptureKind.Explicit);
 
 		public bool CapturePointer(Pointer value)
 		{

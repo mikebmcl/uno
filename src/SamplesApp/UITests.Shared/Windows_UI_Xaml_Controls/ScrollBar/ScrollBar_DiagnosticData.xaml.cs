@@ -54,11 +54,32 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollBar
 			HorizontalScrollBar.SizeChanged += HorizontalScrollBar_SizeChanged;
 			HorizontalScrollBar.PointerEntered += HorizontalScrollBar_PointerEntered;
 			HorizontalScrollBar.PointerExited += HorizontalScrollBar_PointerExited;
+			HorizontalScrollBar.PointerPressed += HorizontalScrollBar_PointerPressed;
+			HorizontalScrollBar.PointerReleased += HorizontalScrollBar_PointerReleased;
+			HorizontalScrollBar.PointerCaptureLost += HorizontalScrollBar_PointerCaptureLost;
+			HorizontalScrollBar.PointerCanceled += HorizontalScrollBar_PointerCanceled;
 
 			VerticalScrollBar.LayoutUpdated += VerticalScrollBar_LayoutUpdated;
 			VerticalScrollBar.SizeChanged += VerticalScrollBar_SizeChanged;
 			VerticalScrollBar.PointerEntered += VerticalScrollBar_PointerEntered;
 			VerticalScrollBar.PointerExited += VerticalScrollBar_PointerExited;
+			VerticalScrollBar.PointerPressed += VerticalScrollBar_PointerPressed;
+			VerticalScrollBar.PointerReleased += VerticalScrollBar_PointerReleased;
+			VerticalScrollBar.PointerCaptureLost += VerticalScrollBar_PointerCaptureLost;
+			VerticalScrollBar.PointerCanceled += VerticalScrollBar_PointerCanceled;
+
+			_enableDelayedReleaseDispatcherTimer = new DispatcherTimer();
+			_enableDelayedReleaseDispatcherTimer.Tick += _enableDelayedReleaseDispatcherTimer_Tick;
+			Unloaded += ScrollBar_DiagnosticData_Unloaded;
+		}
+
+		private void ScrollBar_DiagnosticData_Unloaded(object sender, RoutedEventArgs e)
+		{
+			try
+			{
+				_enableDelayedReleaseDispatcherTimer.Stop();
+			}
+			catch (Exception) { }
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -79,6 +100,36 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollBar
 				if (_selectedIndicatorMode != value)
 				{
 					_selectedIndicatorMode = value;
+					RaisePropertyChanged();
+				}
+			}
+		}
+
+		private DispatcherTimer _enableDelayedReleaseDispatcherTimer;
+		private void _enableDelayedReleaseDispatcherTimer_Tick(object sender, object e)
+		{
+			try
+			{
+				HorizontalScrollBar.ReleasePointerCaptures();
+				VerticalScrollBar.ReleasePointerCaptures();
+			}
+			catch (Exception)
+			{
+				_enableDelayedReleaseDispatcherTimer?.Stop();
+			}
+		}
+
+		private TimeSpan _enableDelayedReleaseDispatcherTimerInterval = new TimeSpan(0, 0, 5);
+
+		private bool? _enableDelayedReleaseIsChecked = false;
+		public bool? EnableDelayedReleaseIsChecked
+		{
+			get => _enableDelayedReleaseIsChecked;
+			set
+			{
+				if (_enableDelayedReleaseIsChecked != value)
+				{
+					_enableDelayedReleaseIsChecked = value;
 					RaisePropertyChanged();
 				}
 			}
@@ -144,6 +195,56 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollBar
 		private void HorizontalScrollBar_PointerExited(object sender, PointerRoutedEventArgs args) =>
 			horizontalScrollBarPointerEntered.Text = (--_horizontalScrollBarEntered).ToString();
 
+		private void HorizontalScrollBar_PointerPressed(object sender, PointerRoutedEventArgs e)
+		{
+			if (EnableDelayedReleaseIsChecked is true)
+			{
+				try
+				{
+					(sender as UIElement).CapturePointer(e.Pointer);
+					_enableDelayedReleaseDispatcherTimer.Interval = _enableDelayedReleaseDispatcherTimerInterval;
+					_enableDelayedReleaseDispatcherTimer.Start();
+				}
+				catch (Exception) { }
+			}
+		}
+
+		private void HorizontalScrollBar_PointerReleased(object sender, PointerRoutedEventArgs e)
+		{
+			if (EnableDelayedReleaseIsChecked is true)
+			{
+				try
+				{
+					_enableDelayedReleaseDispatcherTimer.Stop();
+				}
+				catch (Exception) { }
+			}
+		}
+
+		private void HorizontalScrollBar_PointerCaptureLost(object sender, PointerRoutedEventArgs e)
+		{
+			if (EnableDelayedReleaseIsChecked is true)
+			{
+				try
+				{
+					_enableDelayedReleaseDispatcherTimer.Stop();
+				}
+				catch (Exception) { }
+			}
+		}
+
+		private void HorizontalScrollBar_PointerCanceled(object sender, PointerRoutedEventArgs e)
+		{
+			if (EnableDelayedReleaseIsChecked is true)
+			{
+				try
+				{
+					_enableDelayedReleaseDispatcherTimer.Stop();
+				}
+				catch (Exception) { }
+			}
+		}
+
 		private void VerticalScrollBar_LayoutUpdated(object sender, object args)
 		{
 			VerticalScrollBar.LayoutUpdated -= VerticalScrollBar_LayoutUpdated;
@@ -159,6 +260,55 @@ namespace UITests.Windows_UI_Xaml_Controls.ScrollBar
 
 		private void VerticalScrollBar_PointerExited(object sender, PointerRoutedEventArgs args) =>
 			verticalScrollBarPointerEntered.Text = (--_verticalScrollBarEntered).ToString();
+		private void VerticalScrollBar_PointerPressed(object sender, PointerRoutedEventArgs e)
+		{
+			if (EnableDelayedReleaseIsChecked is true)
+			{
+				try
+				{
+					(sender as UIElement).CapturePointer(e.Pointer);
+					_enableDelayedReleaseDispatcherTimer.Interval = _enableDelayedReleaseDispatcherTimerInterval;
+					_enableDelayedReleaseDispatcherTimer.Start();
+				}
+				catch (Exception) { }
+			}
+		}
+
+		private void VerticalScrollBar_PointerReleased(object sender, PointerRoutedEventArgs e)
+		{
+			if (EnableDelayedReleaseIsChecked is true)
+			{
+				try
+				{
+					_enableDelayedReleaseDispatcherTimer.Stop();
+				}
+				catch (Exception) { }
+			}
+		}
+
+		private void VerticalScrollBar_PointerCaptureLost(object sender, PointerRoutedEventArgs e)
+		{
+			if (EnableDelayedReleaseIsChecked is true)
+			{
+				try
+				{
+					_enableDelayedReleaseDispatcherTimer.Stop();
+				}
+				catch (Exception) { }
+			}
+		}
+
+		private void VerticalScrollBar_PointerCanceled(object sender, PointerRoutedEventArgs e)
+		{
+			if (EnableDelayedReleaseIsChecked is true)
+			{
+				try
+				{
+					_enableDelayedReleaseDispatcherTimer.Stop();
+				}
+				catch (Exception) { }
+			}
+		}
 
 		public void OnVerticalScroll(object sender, ScrollEventArgs args) =>
 			scrollValue.Text = $"Vertical Scroll: {args.ScrollEventType}, {args.NewValue:F2}";
