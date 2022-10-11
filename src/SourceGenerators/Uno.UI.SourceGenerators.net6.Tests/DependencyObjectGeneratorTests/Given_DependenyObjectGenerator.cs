@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis.Testing;
+using Microsoft.CodeAnalysis.Testing;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Uno.UI.SourceGenerators.DependencyObject;
 using Microsoft.CodeAnalysis.Testing.Verifiers;
@@ -29,7 +29,7 @@ public class Given_DependenyObjectGenerator
 		await TestAndroid(@"
 using Android.Content;
 using Windows.UI.Core;
-using Windows.UI.Xaml;
+using Microsoft.UI.Xaml;
 
 public class C : Android.Views.View, DependencyObject
 {
